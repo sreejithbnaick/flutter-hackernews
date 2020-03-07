@@ -1,7 +1,7 @@
 # Simple HackerNews App Using Flutter
 
 1. List 25 top stories from HackerNews.
-2. Opens the URL in a webview.
+2. Open the Story url in a webview.
 3. Long press on List Item
     + To open the story url in a Browser.
     + To share the story url.
