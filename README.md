@@ -1,4 +1,4 @@
-# Simple HackerNews App Based Using Flutter
+# Simple HackerNews App Using Flutter
 
 1. List 25 top stories from HackerNews.
 2. Opens the URL in a webview.
