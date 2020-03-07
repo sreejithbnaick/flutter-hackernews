@@ -72,7 +72,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
     }
   }
 
-  _share(url) async{
+  _share(url) async {
     Share.share(url);
   }
 
@@ -83,15 +83,17 @@ class _WebViewContainerState extends State<WebViewContainer> {
           // action button
           IconButton(
             icon: Icon(Icons.open_in_browser),
-            onPressed: () {
-              _launchURL(_url);
+            onPressed: () async {
+              var url = await _controller.currentUrl();
+              _launchURL(url);
             },
           ),
           // action button
           IconButton(
             icon: Icon(Icons.share),
-            onPressed: () {
-              _share(_url);
+            onPressed: () async {
+              var url = await _controller.currentUrl();
+              _share(url);
             },
           )
         ]),
