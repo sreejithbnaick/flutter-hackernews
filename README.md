@@ -12,3 +12,7 @@
     + Using menu in action bar: 
         + Open the current link a browser.
         + Share the current link.
+
+![alt text](./images/screen1.jpeg)
+![alt text](./images/screen2.jpeg)
+![alt text](./images/screen3.jpeg)
