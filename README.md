@@ -13,4 +13,4 @@
         + Open the current link a browser.
         + Share the current link.
 
-![alt text](./images/screen1.jpg)![alt text](./images/screen2.jpg)![alt text](./images/screen3.jpg)
+<img src="./images/screen1.jpg" width="250"> <img src="./images/screen2.jpg" width="250"> <img src="./images/screen3.jpg" width="250">
