@@ -1,6 +1,6 @@
 # Simple HackerNews App Using Flutter
 
-<img src="./images/screen1.jpg" width="250"> <img src="./images/screen2.jpg" width="250"> <img src="./images/screen3.jpg" width="250">
+<img src="./images/screen1.jpg" width="180"> <img src="./images/screen2.jpg" width="180"> <img src="./images/screen3.jpg" width="180">
 
 Try the APK from here: https://github.com/sreejithbnaick/flutter-hackernews/releases
 
