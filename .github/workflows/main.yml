@@ -1,5 +1,6 @@
-on: push
-  branches:
+on:
+  push:
+    branches:
     - 'master'
 name: Test, Build and Release apk
 jobs:
