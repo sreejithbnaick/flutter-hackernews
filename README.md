@@ -1,5 +1,11 @@
 # Simple HackerNews App Using Flutter
 
+<img src="./images/screen1.jpg" width="250"> <img src="./images/screen2.jpg" width="250"> <img src="./images/screen3.jpg" width="250">
+
+Try the APK from here: https://github.com/sreejithbnaick/flutter-hackernews/releases
+
+What all this app can do:
+
 1. List 25 top stories from HackerNews.
 2. Open the Story url in a webview.
 3. Long press on List Item
@@ -12,5 +18,3 @@
     + Using menu in action bar: 
         + Open the current link a browser.
         + Share the current link.
-
-<img src="./images/screen1.jpg" width="250"> <img src="./images/screen2.jpg" width="250"> <img src="./images/screen3.jpg" width="250">
