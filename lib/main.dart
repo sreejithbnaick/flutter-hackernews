@@ -16,7 +16,7 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'Flutter Demo',
+      title: 'HackerNews',
       theme: ThemeData(
         primarySwatch: Colors.deepOrange,
       ),
@@ -80,7 +80,8 @@ class _MyHomePageState extends State<MyHomePage> {
     var postId = widgets[i];
     var postData = post[postId];
     logger.d("Data: $postData");
-    String title = postData == null ? "Loading" : postData["title"];
+    String title =
+        postData == null ? "Loading" : "${i + 1}. ${postData["title"]}";
     int score = postData == null ? 0 : postData["score"];
     if (postData == null) {
       loadPost(postId);
@@ -128,7 +129,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   fontSize: 16,
                   color: Colors.black87,
                   fontWeight: FontWeight.bold)),
-          subtitle: Text("Score: $score"),
+          subtitle: Text("Points: $score"),
           onTap: () => onTapped(postData),
         ));
   }
@@ -150,10 +151,24 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   onTapped(post) {
+    String url = post["url"];
+    if (isPdfPost(url)) {
+      _launchURL(url);
+      return;
+    }
+
+    // If url is null, it is then Ask HN post.
+    if (url == null) {
+      url = "https://news.ycombinator.com/item?id=${post["id"]}";
+    }
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => WebViewScreen(post["title"], post["url"])));
+            builder: (context) => WebViewScreen(post["title"], url)));
+  }
+
+  isPdfPost(url) {
+    return url != null && url.endsWith(".pdf");
   }
 
   loadData() async {
@@ -162,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
     http.Response response = await http.get(dataURL);
     setState(() {
-      widgets = json.decode(response.body).take(25).toList();
+      widgets = json.decode(response.body).take(100).toList();
     });
   }
 

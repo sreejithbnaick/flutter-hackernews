@@ -22,7 +22,7 @@ Sor far this app can do:
 
 ### TODO:
 
-1. PDF links does not work. Need to add support for PDF.
-2. HN discussion link does not open. Need to fix it.
+1. ~~PDF links does not work. Need to add support for PDF.~~ Now will open external PDF Viewer. 
+2. ~~Ask HN discussion link does not open. Need to fix it.~~ Will go straight to the page.
 3. Error State Handling: Refresh Page, Refresh Item, Retry, Offline support.
 3. Add test :P
