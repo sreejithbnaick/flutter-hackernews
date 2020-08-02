@@ -6,7 +6,7 @@ Try the APK from here: https://github.com/sreejithbnaick/flutter-hackernews/rele
 
 Sor far this app can do:
 
-1. List 25 top stories from HackerNews.
+1. List 100 top stories from HackerNews.
 2. Open the Story url in a webview.
 3. Long press on List Item
     + To open the story url in a Browser.
