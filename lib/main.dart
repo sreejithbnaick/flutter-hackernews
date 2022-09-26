@@ -67,6 +67,14 @@ class _MyHomePageState extends State<MyHomePage> {
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
+          actions: [
+            IconButton(
+              icon: Icon(Icons.refresh),
+              onPressed: () async {
+                loadData();
+              },
+            ),
+          ],
         ),
         body: ListView.builder(
             itemCount: widgets.length,
@@ -175,7 +183,10 @@ class _MyHomePageState extends State<MyHomePage> {
     logger.d("Loading stories");
     String dataURL =
         "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
-    http.Response response = await http.get(dataURL);
+    http.Response response = await http.get(dataURL).catchError((error) {
+      print(error);
+      return null;
+    });
     setState(() {
       widgets = json.decode(response.body).take(100).toList();
     });
@@ -190,7 +201,10 @@ class _MyHomePageState extends State<MyHomePage> {
     String dataURL =
         "https://hacker-news.firebaseio.com/v0/item/$item.json?print=pretty";
     logger.d("Loading post: $dataURL");
-    http.Response response = await http.get(dataURL);
+    http.Response response = await http.get(dataURL).catchError((error) {
+      print(error);
+      return null;
+    });
     setState(() {
       post[item] = json.decode(response.body);
     });

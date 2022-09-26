@@ -66,6 +66,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
 
   _launchURL(url) async {
     if (await canLaunch(url)) {
+      await CookieManager().clearCookies();
       await launch(url);
     } else {
       throw 'Could not launch $url';
