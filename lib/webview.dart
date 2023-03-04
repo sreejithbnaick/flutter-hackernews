@@ -3,6 +3,8 @@ import 'package:hacker_news/main.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
 const double _kEdgeDragWidth = 20.0;
 const double _kMinFlingVelocity = 365.0;
@@ -32,42 +34,82 @@ class WebViewContainer extends StatefulWidget {
 
 class _WebViewContainerState extends State<WebViewContainer> {
   var _url;
-  final _key = UniqueKey();
   final title;
-  WebViewController _controller;
+  late WebViewController _controller;
 
   _WebViewContainerState(this.title, this._url);
 
   @override
   void initState() {
     super.initState();
+
+    PlatformWebViewControllerCreationParams params;
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
+      );
+    } else {
+      params = const PlatformWebViewControllerCreationParams();
+    }
+
+    final WebViewController controller =
+        WebViewController.fromPlatformCreationParams(params);
+    controller
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            // Update loading bar.
+          },
+          onPageStarted: (String url) {},
+          onPageFinished: (String url) {},
+          onWebResourceError: (WebResourceError error) {
+            logger.d("onWebResourceError: " + error.description);
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            /*if (request.url.startsWith('https://www.youtube.com/')) {
+              return NavigationDecision.prevent;
+            }*/
+            logger.d("onNavigationRequest: " + request.url);
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(_url));
+    if (controller.platform is AndroidWebViewController) {
+      AndroidWebViewController.enableDebugging(true);
+      var platform = (controller.platform as AndroidWebViewController);
+      platform.setMediaPlaybackRequiresUserGesture(false);
+    }
+    _controller = controller;
     logger.d("Loading url: $_url");
   }
 
   void _settleLeft(DragEndDetails details) {
     if (details.velocity.pixelsPerSecond.dx.abs() >= _kMinFlingVelocity) {
-      if (_controller != null) {
-        _controller.canGoBack().then<void>((onValue) {
-          if (onValue) _controller.goBack();
-        });
-      }
+      _controller.canGoBack().then<void>((onValue) {
+        if (onValue) _controller.goBack();
+      });
     }
   }
 
   void _settleRight(DragEndDetails details) {
     if (details.velocity.pixelsPerSecond.dx.abs() >= _kMinFlingVelocity) {
-      if (_controller != null) {
-        _controller.canGoForward().then<void>((onValue) {
-          if (onValue) _controller.goForward();
-        });
-      }
+      _controller.canGoForward().then<void>((onValue) {
+        if (onValue) _controller.goForward();
+      });
     }
   }
 
   _launchURL(url) async {
-    if (await canLaunch(url)) {
-      await CookieManager().clearCookies();
-      await launch(url);
+    var uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await WebViewCookieManager().clearCookies();
+      await _controller.clearCache();
+      await _controller.clearLocalStorage();
+      await launchUrl(uri);
     } else {
       throw 'Could not launch $url';
     }
@@ -82,13 +124,13 @@ class _WebViewContainerState extends State<WebViewContainer> {
     return Scaffold(
         appBar: AppBar(title: Text(title), actions: <Widget>[
           // action button
-          IconButton(
+          /*IconButton(
             icon: Icon(Icons.open_in_browser),
             onPressed: () async {
               var url = await _controller.currentUrl();
               _launchURL(url);
             },
-          ),
+          ),*/
           // action button
           IconButton(
             icon: Icon(Icons.share),
@@ -103,13 +145,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
             Expanded(
                 child: Stack(
               children: <Widget>[
-                WebView(
-                    key: _key,
-                    javascriptMode: JavascriptMode.unrestricted,
-                    initialUrl: _url,
-                    onWebViewCreated: (WebViewController webViewController) {
-                      _controller = webViewController;
-                    }),
+                WebViewWidget(controller: _controller),
                 new Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
