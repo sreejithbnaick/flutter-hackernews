@@ -1,32 +1,38 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
-import 'package:share/share.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'webview.dart';
 
 void main() => runApp(MyApp());
 var logger = Logger();
 
+const String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
+const String newStories = "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty";
+const String bestStories = "https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty";
+
 class MyApp extends StatelessWidget {
-  // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'HackerNews',
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-      ),
-      home: MyHomePage(title: 'HackerNews'),
-    );
+    return Shortcuts(
+        shortcuts: <LogicalKeySet, Intent>{
+          LogicalKeySet(LogicalKeyboardKey.select): ActivateIntent(),
+        },
+        child: MaterialApp(
+            title: 'HackerNews',
+            theme: ThemeData(
+              primarySwatch: Colors.blue,
+              visualDensity: VisualDensity.adaptivePlatformDensity,
+            ),
+            home: MyHomePage(title: 'HackerNews')));
   }
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -44,6 +50,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  String currentURL = topStories;
   List widgets = [];
   Map post = Map();
   Map loadingState = Map();
@@ -68,9 +75,27 @@ class _MyHomePageState extends State<MyHomePage> {
           // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
           actions: [
+            // Top stories
             IconButton(
-              icon: Icon(Icons.refresh),
+              icon: Icon(Icons.online_prediction),
               onPressed: () async {
+                currentURL = topStories;
+                loadData();
+              },
+            ),
+            // Best stories
+            IconButton(
+              icon: Icon(Icons.highlight),
+              onPressed: () async {
+                currentURL = bestStories;
+                loadData();
+              },
+            ),
+            // New stories
+            IconButton(
+              icon: Icon(Icons.new_releases),
+              onPressed: () async {
+                currentURL = newStories;
                 loadData();
               },
             ),
@@ -99,37 +124,6 @@ class _MyHomePageState extends State<MyHomePage> {
         onTapDown: (TapDownDetails details) {
           tapPosition = details.globalPosition;
         },
-        onLongPress: () {
-          showMenu(
-              context: context,
-              position: RelativeRect.fromRect(
-                  tapPosition & Size(40, 40),
-                  Offset.zero &
-                      (Overlay.of(context).context.findRenderObject()
-                              as RenderBox)
-                          .size),
-              items: <PopupMenuEntry>[
-                PopupMenuItem(
-                  value: "open",
-                  child: Row(
-                    children: <Widget>[
-                      Text("Open in browser"),
-                    ],
-                  ),
-                ),
-                PopupMenuItem(
-                  value: "share",
-                  child: Row(
-                    children: <Widget>[
-                      Text("Share"),
-                    ],
-                  ),
-                )
-              ]).then<void>((value) {
-            if (value == null) return;
-            onPopupMenuSelect(value, postData);
-          });
-        },
         child: ListTile(
           title: Text("$title",
               textDirection: TextDirection.ltr,
@@ -142,26 +136,9 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 
-  onPopupMenuSelect(value, post) {
-    logger.d("Open in browser: ${post["url"]}");
-    if (value == "open")
-      _launchURL(post["url"]);
-    else
-      Share.share(post["url"]);
-  }
-
-  _launchURL(url) async {
-    if (await canLaunch(url)) {
-      await launch(url);
-    } else {
-      throw 'Could not launch $url';
-    }
-  }
-
   onTapped(post) {
     String url = post["url"];
     if (isPdfPost(url)) {
-      _launchURL(url);
       return;
     }
 
@@ -181,14 +158,12 @@ class _MyHomePageState extends State<MyHomePage> {
 
   loadData() async {
     logger.d("Loading stories");
-    String dataURL =
-        "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
-    http.Response response = await http.get(dataURL).catchError((error) {
+    http.Response response = await http.get(currentURL).catchError((error) {
       print(error);
       return null;
     });
     setState(() {
-      widgets = json.decode(response.body).take(100).toList();
+      widgets = json.decode(response.body).take(200).toList();
     });
   }
 

@@ -1,11 +1,19 @@
-import 'package:flutter/material.dart';
-import 'package:hacker_news/main.dart';
-import 'package:share/share.dart';
-import 'package:url_launcher/url_launcher.dart';
-import 'package:webview_flutter/webview_flutter.dart';
+import 'dart:convert';
+import 'dart:ffi';
 
-const double _kEdgeDragWidth = 20.0;
-const double _kMinFlingVelocity = 365.0;
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:hacker_news/links.dart';
+import 'package:hacker_news/main.dart';
+import 'package:webview_flutter/webview_flutter.dart';
+import 'package:webview_flutter_android/webview_flutter_android.dart';
+import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
+
+const int KEY_UP = 19;
+const int KEY_DOWN = 20;
+const int KEY_LEFT = 21;
+const int KEY_RIGHT = 22;
+const int KEY_CENTER = 23;
 
 class WebViewScreen extends StatelessWidget {
   final url;
@@ -32,105 +40,109 @@ class WebViewContainer extends StatefulWidget {
 
 class _WebViewContainerState extends State<WebViewContainer> {
   var _url;
-  final _key = UniqueKey();
   final title;
-  WebViewController _controller;
+  late WebViewController _controller;
 
   _WebViewContainerState(this.title, this._url);
 
   @override
   void initState() {
     super.initState();
-    logger.d("Loading url: $_url");
-  }
 
-  void _settleLeft(DragEndDetails details) {
-    if (details.velocity.pixelsPerSecond.dx.abs() >= _kMinFlingVelocity) {
-      if (_controller != null) {
-        _controller.canGoBack().then<void>((onValue) {
-          if (onValue) _controller.goBack();
-        });
-      }
-    }
-  }
-
-  void _settleRight(DragEndDetails details) {
-    if (details.velocity.pixelsPerSecond.dx.abs() >= _kMinFlingVelocity) {
-      if (_controller != null) {
-        _controller.canGoForward().then<void>((onValue) {
-          if (onValue) _controller.goForward();
-        });
-      }
-    }
-  }
-
-  _launchURL(url) async {
-    if (await canLaunch(url)) {
-      await CookieManager().clearCookies();
-      await launch(url);
+    PlatformWebViewControllerCreationParams params;
+    if (WebViewPlatform.instance is WebKitWebViewPlatform) {
+      params = WebKitWebViewControllerCreationParams(
+        allowsInlineMediaPlayback: true,
+        mediaTypesRequiringUserAction: const <PlaybackMediaTypes>{},
+      );
     } else {
-      throw 'Could not launch $url';
+      params = const PlatformWebViewControllerCreationParams();
     }
-  }
 
-  _share(url) async {
-    Share.share(url);
+    final WebViewController controller =
+        WebViewController.fromPlatformCreationParams(params);
+    controller
+      ..setJavaScriptMode(JavaScriptMode.unrestricted)
+      ..setBackgroundColor(const Color(0x00000000))
+      ..setNavigationDelegate(
+        NavigationDelegate(
+          onProgress: (int progress) {
+            // Update loading bar.
+          },
+          onPageStarted: (String url) {},
+          onPageFinished: (String url) {},
+          onWebResourceError: (WebResourceError error) {
+            logger.d("onWebResourceError: " + error.description);
+          },
+          onNavigationRequest: (NavigationRequest request) {
+            /*if (request.url.startsWith('https://www.youtube.com/')) {
+              return NavigationDecision.prevent;
+            }*/
+            logger.d("onNavigationRequest: " + request.url);
+            return NavigationDecision.navigate;
+          },
+        ),
+      )
+      ..loadRequest(Uri.parse(_url));
+    if (controller.platform is AndroidWebViewController) {
+      AndroidWebViewController.enableDebugging(true);
+      var platform = (controller.platform as AndroidWebViewController);
+      platform.setMediaPlaybackRequiresUserGesture(false);
+    }
+    _controller = controller;
+    logger.d("Loading url: $_url");
   }
 
   @override
   Widget build(BuildContext context) {
+    openLinks() async {
+      var js =
+          "var tags = document.getElementsByTagName('a'); var links=[]; for(i=0;i<tags.length;i++){ if(tags[i].href.startsWith('https:'))links.push({url:tags[i].href, title: tags[i].innerText.replaceAll('\"','')})}; JSON.stringify(links)";
+      String response =
+          await _controller.platform.runJavaScriptReturningResult(js) as String;
+      response = response.substring(1, response.length-1).replaceAll("\\", '');
+      logger.d("Links: " + response);
+      var links = jsonDecode(response) as List<dynamic>;
+      logger.d(links);
+      Navigator.push(context,
+          MaterialPageRoute(builder: (context) => Links(links: links)));
+    }
+
+    FocusNode focusNode = FocusNode();
     return Scaffold(
-        appBar: AppBar(title: Text(title), actions: <Widget>[
-          // action button
-          IconButton(
-            icon: Icon(Icons.open_in_browser),
-            onPressed: () async {
-              var url = await _controller.currentUrl();
-              _launchURL(url);
-            },
-          ),
-          // action button
-          IconButton(
-            icon: Icon(Icons.share),
-            onPressed: () async {
-              var url = await _controller.currentUrl();
-              _share(url);
-            },
-          )
-        ]),
-        body: Column(
-          children: [
-            Expanded(
-                child: Stack(
-              children: <Widget>[
-                WebView(
-                    key: _key,
-                    javascriptMode: JavascriptMode.unrestricted,
-                    initialUrl: _url,
-                    onWebViewCreated: (WebViewController webViewController) {
-                      _controller = webViewController;
-                    }),
-                new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onHorizontalDragEnd: _settleLeft,
-                        child: Container(
-                          width: _kEdgeDragWidth,
-                          color: Colors.transparent,
-                        ),
-                      ),
-                      GestureDetector(
-                        onHorizontalDragEnd: _settleRight,
-                        child: Container(
-                          width: _kEdgeDragWidth,
-                          color: Colors.transparent,
-                        ),
-                      )
-                    ])
-              ],
-            ))
-          ],
-        ));
+      body: new RawKeyboardListener(
+          focusNode: focusNode,
+          onKey: (RawKeyEvent event) {
+            if (event is RawKeyDownEvent &&
+                event.data is RawKeyEventDataAndroid) {
+              RawKeyDownEvent rawKeyDownEvent = event;
+              RawKeyEventDataAndroid data =
+                  rawKeyDownEvent.data as RawKeyEventDataAndroid;
+              print("Focus Node 0: ${data.keyCode}");
+              switch (data.keyCode) {
+                case KEY_CENTER:
+                  logger.d("KeyListener: KEY_CENTER");
+                  openLinks();
+                  break;
+                case KEY_UP:
+                  _controller.scrollBy(0, -100);
+                  break;
+                case KEY_DOWN:
+                  _controller.scrollBy(0, 100);
+                  break;
+                case KEY_LEFT:
+                  _controller.scrollBy(-100, 0);
+                  break;
+                case KEY_RIGHT:
+                  _controller.scrollBy(100, 0);
+                  break;
+                default:
+                  break;
+              }
+              setState(() {});
+            }
+          },
+          child: WebViewWidget(controller: _controller)),
+    );
   }
 }
