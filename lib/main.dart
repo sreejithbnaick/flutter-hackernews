@@ -204,9 +204,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   loadData() async {
     logger.d("Loading stories");
-    String dataURL =
-        "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
-    http.Response response = await http.get(Uri.parse(dataURL)).catchError((error) {
+    http.Response response = await http.get(Uri.parse(currentURL)).catchError((error) {
       print(error);
       return null;
     });
