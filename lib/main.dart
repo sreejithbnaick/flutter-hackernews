@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:share/share.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 import 'webview.dart';
 
@@ -124,6 +126,38 @@ class _MyHomePageState extends State<MyHomePage> {
         onTapDown: (TapDownDetails details) {
           tapPosition = details.globalPosition;
         },
+        onLongPress: () {
+          showMenu(
+              context: context,
+              position: RelativeRect.fromRect(
+                  tapPosition & Size(40, 40),
+                  Offset.zero &
+                      (Overlay.of(context).context.findRenderObject()
+                              as RenderBox)
+                          .size),
+              items: <PopupMenuEntry>[
+                PopupMenuItem(
+                  value: "open",
+                  child: Row(
+                    children: <Widget>[
+                      Text("Open in browser"),
+                    ],
+                  ),
+                ),
+                PopupMenuItem(
+                  value: "share",
+                  child: Row(
+                    children: <Widget>[
+                      Text("Share"),
+                    ],
+                  ),
+                )
+              ]).then<void>((value) {
+            if (value == null) return;
+            print(postData);
+            onPopupMenuSelect(value, postData);
+          });
+        },
         child: ListTile(
           title: Text("$title",
               textDirection: TextDirection.ltr,
@@ -136,9 +170,31 @@ class _MyHomePageState extends State<MyHomePage> {
         ));
   }
 
+  onPopupMenuSelect(value, post) {
+    var url = post["url"];
+    if (url == null) {
+      url = "https://news.ycombinator.com/item?id=${post["id"]}";
+    }
+    logger.d("Open in browser: $url");
+    if (value == "open")
+      _launchURL(url);
+    else
+      Share.share(url);
+  }
+
+  _launchURL(url) async {
+    var uri = Uri.parse(url);
+    if (await canLaunchUrl(uri)) {
+      await launchUrl(uri);
+    } else {
+      throw 'Could not launch $url';
+    }
+  }
+
   onTapped(post) {
     String url = post["url"];
     if (isPdfPost(url)) {
+      _launchURL(url);
       return;
     }
 
