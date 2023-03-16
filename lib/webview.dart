@@ -55,6 +55,10 @@ class _WebViewContainerState extends State<WebViewContainer> {
 
     final WebViewController controller =
         WebViewController.fromPlatformCreationParams(params);
+    WebViewCookieManager().clearCookies();
+    controller.clearCache();
+    controller.clearLocalStorage();
+
     controller
       ..setJavaScriptMode(JavaScriptMode.unrestricted)
       ..setBackgroundColor(const Color(0x00000000))
@@ -106,9 +110,6 @@ class _WebViewContainerState extends State<WebViewContainer> {
   _launchURL(url) async {
     var uri = Uri.parse(url);
     if (await canLaunchUrl(uri)) {
-      await WebViewCookieManager().clearCookies();
-      await _controller.clearCache();
-      await _controller.clearLocalStorage();
       await launchUrl(uri);
     } else {
       throw 'Could not launch $url';
@@ -124,13 +125,13 @@ class _WebViewContainerState extends State<WebViewContainer> {
     return Scaffold(
         appBar: AppBar(title: Text(title), actions: <Widget>[
           // action button
-          /*IconButton(
+          IconButton(
             icon: Icon(Icons.open_in_browser),
             onPressed: () async {
               var url = await _controller.currentUrl();
               _launchURL(url);
             },
-          ),*/
+          ),
           // action button
           IconButton(
             icon: Icon(Icons.share),
