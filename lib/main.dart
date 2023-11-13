@@ -227,7 +227,7 @@ class _MyHomePageState extends State<MyHomePage> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => WebViewScreen(post["title"], url)));
+            builder: (context) => WebViewScreen(post["title"], url, post)));
   }
 
   isPdfPost(url) {

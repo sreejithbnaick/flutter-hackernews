@@ -158,7 +158,7 @@ class _BookmarksState extends State<Bookmarks> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => WebViewScreen(post["title"], url)));
+            builder: (context) => WebViewScreen(post["title"], url, post)));
   }
 
   isPdfPost(url) {

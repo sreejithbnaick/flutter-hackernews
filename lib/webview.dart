@@ -6,38 +6,44 @@ import 'package:webview_flutter/webview_flutter.dart';
 import 'package:webview_flutter_android/webview_flutter_android.dart';
 import 'package:webview_flutter_wkwebview/webview_flutter_wkwebview.dart';
 
+import 'bookmark_service.dart';
+
 const double _kEdgeDragWidth = 20.0;
 const double _kMinFlingVelocity = 365.0;
 
 class WebViewScreen extends StatelessWidget {
   final url;
   final title;
+  final post;
 
-  WebViewScreen(this.title, this.url);
+  WebViewScreen(this.title, this.url, this.post);
 
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
-    return WebViewContainer(title, url);
+    return WebViewContainer(title, url, post);
   }
 }
 
 class WebViewContainer extends StatefulWidget {
   final url;
   final title;
+  final post;
 
-  WebViewContainer(this.title, this.url);
+  WebViewContainer(this.title, this.url, this.post);
 
   @override
-  createState() => _WebViewContainerState(this.title, this.url);
+  createState() => _WebViewContainerState(this.title, this.url, this.post);
 }
 
 class _WebViewContainerState extends State<WebViewContainer> {
+  final bookmarkService = BookmarkService();
   var _url;
   final title;
+  final post;
   late WebViewController _controller;
 
-  _WebViewContainerState(this.title, this._url);
+  _WebViewContainerState(this.title, this._url, this.post);
 
   @override
   void initState() {
@@ -120,6 +126,12 @@ class _WebViewContainerState extends State<WebViewContainer> {
     Share.share(url);
   }
 
+  _bookmark(post) async {
+    var list = await bookmarkService.getBookmarks();
+    list.add(post);
+    await bookmarkService.saveBookmarks(list);
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -138,6 +150,12 @@ class _WebViewContainerState extends State<WebViewContainer> {
             onPressed: () async {
               var url = await _controller.currentUrl();
               _share(url);
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.bookmark),
+            onPressed: () async {
+              _bookmark(post);
             },
           )
         ]),
