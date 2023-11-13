@@ -1,6 +1,8 @@
 import 'dart:convert';
 
 import 'package:flutter/material.dart';
+import 'package:hacker_news/bookmark_service.dart';
+import 'package:hacker_news/bookmarks.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:share/share.dart';
@@ -11,9 +13,12 @@ import 'webview.dart';
 void main() => runApp(MyApp());
 var logger = Logger();
 
-const String topStories = "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
-const String newStories = "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty";
-const String bestStories = "https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty";
+const String topStories =
+    "https://hacker-news.firebaseio.com/v0/topstories.json?print=pretty";
+const String newStories =
+    "https://hacker-news.firebaseio.com/v0/newstories.json?print=pretty";
+const String bestStories =
+    "https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty";
 
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
@@ -30,7 +35,7 @@ class MyApp extends StatelessWidget {
 }
 
 class MyHomePage extends StatefulWidget {
-  MyHomePage({ Key? key, required this.title}) : super(key: key);
+  MyHomePage({Key? key, required this.title}) : super(key: key);
 
   // This widget is the home page of your application. It is stateful, meaning
   // that it has a State object (defined below) that contains fields that affect
@@ -48,6 +53,7 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
+  final BookmarkService bookmarkService = BookmarkService();
   String currentURL = topStories;
   List widgets = [];
   Map post = Map();
@@ -75,7 +81,7 @@ class _MyHomePageState extends State<MyHomePage> {
           actions: [
             // Top stories
             IconButton(
-              icon: Icon(Icons.online_prediction),
+              icon: Icon(Icons.vertical_align_top_sharp),
               onPressed: () async {
                 currentURL = topStories;
                 loadData();
@@ -83,7 +89,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             // Best stories
             IconButton(
-              icon: Icon(Icons.highlight),
+              icon: Icon(Icons.star),
               onPressed: () async {
                 currentURL = bestStories;
                 loadData();
@@ -95,6 +101,14 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () async {
                 currentURL = newStories;
                 loadData();
+              },
+            ),
+            // Bookmarks
+            IconButton(
+              icon: Icon(Icons.bookmarks),
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => BookmarksScreen()));
               },
             ),
           ],
@@ -147,6 +161,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       Text("Share"),
                     ],
                   ),
+                ),
+                PopupMenuItem(
+                  value: "bookmark",
+                  child: Row(
+                    children: <Widget>[
+                      Text("Bookmark"),
+                    ],
+                  ),
                 )
               ]).then<void>((value) {
             if (value == null) return;
@@ -167,10 +189,19 @@ class _MyHomePageState extends State<MyHomePage> {
 
   onPopupMenuSelect(value, post) {
     logger.d("Open in browser: ${post["url"]}");
-    if (value == "open")
+    if (value == "open") {
       _launchURL(post["url"]);
-    else
+    } else if (value == "share") {
       Share.share(post["url"]);
+    } else if (value == "bookmark") {
+      _bookmark(post);
+    }
+  }
+
+  _bookmark(post) async {
+    var list = await bookmarkService.getBookmarks();
+    list.add(post);
+    await bookmarkService.saveBookmarks(list);
   }
 
   _launchURL(url) async {
@@ -205,7 +236,8 @@ class _MyHomePageState extends State<MyHomePage> {
 
   loadData() async {
     logger.d("Loading stories");
-    http.Response response = await http.get(Uri.parse(currentURL)).catchError((error) {
+    http.Response response =
+        await http.get(Uri.parse(currentURL)).catchError((error) {
       print(error);
       return null;
     });
@@ -223,7 +255,8 @@ class _MyHomePageState extends State<MyHomePage> {
     String dataURL =
         "https://hacker-news.firebaseio.com/v0/item/$item.json?print=pretty";
     logger.d("Loading post: $dataURL");
-    http.Response response = await http.get(Uri.parse(dataURL)).catchError((error) {
+    http.Response response =
+        await http.get(Uri.parse(dataURL)).catchError((error) {
       print(error);
       return null;
     });
