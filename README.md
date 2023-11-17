@@ -3,7 +3,9 @@
 <img src="./images/screen1.jpg" width="180"> <img src="./images/screen2.jpg" width="180"> <img src="./images/screen3.jpg" width="180">
 
 Try the Web app from here: https://flutterhackernews.web.app/
+
 or 
+
 Try the APK from here: https://github.com/sreejithbnaick/flutter-hackernews/releases
 
 Sor far this app can do:
