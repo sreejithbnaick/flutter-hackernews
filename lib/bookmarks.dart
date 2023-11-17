@@ -1,5 +1,5 @@
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 import 'package:hacker_news/bookmark_service.dart';
 import 'package:hacker_news/webview.dart';
 import 'package:share/share.dart';
@@ -61,6 +61,7 @@ class _BookmarksState extends State<Bookmarks> {
     String title = post["title"];
     String url = post["url"];
     var tapPosition;
+    var openMenuTxt = kIsWeb ? "Open" : "Open in browser";
     return GestureDetector(
       onTapDown: (TapDownDetails details) {
         tapPosition = details.globalPosition;
@@ -79,7 +80,7 @@ class _BookmarksState extends State<Bookmarks> {
                 value: "open",
                 child: Row(
                   children: <Widget>[
-                    Text("Open in browser"),
+                    Text(openMenuTxt),
                   ],
                 ),
               ),
@@ -154,6 +155,10 @@ class _BookmarksState extends State<Bookmarks> {
     // If url is null, it is then Ask HN post.
     if (url == null) {
       url = "https://news.ycombinator.com/item?id=${post["id"]}";
+    }
+    if (kIsWeb) {
+      _launchURL(url);
+      return;
     }
     Navigator.push(
         context,

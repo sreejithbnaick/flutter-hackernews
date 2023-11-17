@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:hacker_news/bookmark_service.dart';
 import 'package:hacker_news/bookmarks.dart';
@@ -131,6 +132,7 @@ class _MyHomePageState extends State<MyHomePage> {
     if (postData == null) {
       loadPost(postId);
     }
+    var openMenuTxt = kIsWeb ? "Open" : "Open in browser";
     var tapPosition;
     return GestureDetector(
         onTapDown: (TapDownDetails details) {
@@ -150,7 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   value: "open",
                   child: Row(
                     children: <Widget>[
-                      Text("Open in browser"),
+                      Text(openMenuTxt),
                     ],
                   ),
                 ),
@@ -223,6 +225,10 @@ class _MyHomePageState extends State<MyHomePage> {
     // If url is null, it is then Ask HN post.
     if (url == null) {
       url = "https://news.ycombinator.com/item?id=${post["id"]}";
+    }
+    if (kIsWeb) {
+      _launchURL(url);
+      return;
     }
     Navigator.push(
         context,
