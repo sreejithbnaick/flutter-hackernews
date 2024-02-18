@@ -6,6 +6,7 @@ import 'package:hacker_news/bookmark_service.dart';
 import 'package:hacker_news/bookmarks.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -28,8 +29,18 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'HackerNews',
       theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-      ),
+          useMaterial3: true,
+          searchBarTheme: SearchBarThemeData(
+            backgroundColor: MaterialStateProperty.all(Colors.white),
+            shape: MaterialStateProperty.all(RoundedRectangleBorder(
+                borderRadius: BorderRadius.all(Radius.zero))),
+          ),
+          appBarTheme: AppBarTheme(
+            backgroundColor: Colors.deepOrange,
+            iconTheme: IconThemeData(color: Colors.white),
+            titleTextStyle: TextStyle(
+                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+          )),
       home: MyHomePage(title: 'HackerNews'),
     );
   }
@@ -55,15 +66,36 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final BookmarkService bookmarkService = BookmarkService();
+  final TextEditingController searchController = TextEditingController();
   String currentURL = topStories;
   List widgets = [];
+  List widgetBackup = [];
   Map post = Map();
   Map loadingState = Map();
+  bool showSearchBar = false;
 
   @override
   void initState() {
     super.initState();
     loadData();
+  }
+
+  onSearch(String value) {
+    logger.d("Search: $value");
+    if (value.isEmpty) {
+      setState(() {
+        widgets = widgetBackup;
+      });
+      return;
+    }
+    logger.d("Search: Searching... ${widgetBackup.length}");
+    setState(() {
+      widgets = widgetBackup
+          .where((element) =>
+      post[element]["title"].toString().toLowerCase().contains(value) ||
+          post[element]["url"].toString().toLowerCase().contains(value))
+          .toList();
+    });
   }
 
   @override
@@ -79,7 +111,43 @@ class _MyHomePageState extends State<MyHomePage> {
           // Here we take the value from the MyHomePage object that was created by
           // the App.build method, and use it to set our appbar title.
           title: Text(widget.title),
+          bottom: PreferredSize(
+              preferredSize: Size.fromHeight(0.0),
+              child: Visibility(
+                visible: showSearchBar,
+                child: SearchBar(
+                  autoFocus: true,
+                  hintText: "Search",
+                  controller: searchController,
+                  leading: Icon(Icons.search),
+                  trailing: [
+                    IconButton(
+                      icon: Icon(Icons.close),
+                      onPressed: () {
+                        setState(() {
+                          widgets = widgetBackup;
+                          searchController.clear();
+                          showSearchBar = false;
+                        });
+                      },
+                    )
+                  ],
+                  onSubmitted: (value) {
+                    onSearch(value);
+                  },
+                ),
+              )),
           actions: [
+            // Search
+            IconButton(
+              icon: Icon(Icons.search),
+              onPressed: () {
+                setState(() {
+                  widgetBackup = widgets;
+                  showSearchBar = true;
+                });
+              },
+            ),
             // Top stories
             IconButton(
               icon: Icon(Icons.vertical_align_top_sharp),
@@ -127,7 +195,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var postData = post[postId];
     logger.d("Data: $postData");
     String title =
-        postData == null ? "Loading" : "${i + 1}. ${postData["title"]}";
+    postData == null ? "Loading" : "${i + 1}. ${postData["title"]}";
     int score = postData == null ? 0 : postData["score"];
     if (postData == null) {
       loadPost(postId);
@@ -144,10 +212,21 @@ class _MyHomePageState extends State<MyHomePage> {
               position: RelativeRect.fromRect(
                   tapPosition & Size(40, 40),
                   Offset.zero &
-                      (Overlay.of(context).context.findRenderObject()
-                              as RenderBox)
-                          .size),
+                  (Overlay
+                      .of(context)
+                      .context
+                      .findRenderObject()
+                  as RenderBox)
+                      .size),
               items: <PopupMenuEntry>[
+                PopupMenuItem(
+                  value: "openHn",
+                  child: Row(
+                    children: <Widget>[
+                      Text("Open HN page"),
+                    ],
+                  ),
+                ),
                 PopupMenuItem(
                   value: "open",
                   child: Row(
@@ -171,6 +250,14 @@ class _MyHomePageState extends State<MyHomePage> {
                       Text("Bookmark"),
                     ],
                   ),
+                ),
+                PopupMenuItem(
+                  value: "qr",
+                  child: Row(
+                    children: <Widget>[
+                      Text("QR Code"),
+                    ],
+                  ),
                 )
               ]).then<void>((value) {
             if (value == null) return;
@@ -190,13 +277,21 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   onPopupMenuSelect(value, post) {
-    logger.d("Open in browser: ${post["url"]}");
+    logger.d("Open: ${post["url"]}");
     if (value == "open") {
       _launchURL(post["url"]);
+    } else if (value == "openHn") {
+      navigateToUrl(post, "https://news.ycombinator.com/item?id=${post["id"]}");
     } else if (value == "share") {
       Share.share(post["url"]);
     } else if (value == "bookmark") {
       _bookmark(post);
+    } else if (value == "qr") {
+      String? url = post["url"];
+      if (url == null) {
+        url = "https://news.ycombinator.com/item?id=${post["id"]}";
+      }
+      _generateQrCode(url);
     }
   }
 
@@ -216,7 +311,11 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   onTapped(post) {
-    String url = post["url"];
+    String? url = post["url"];
+    navigateToUrl(post, url);
+  }
+
+  navigateToUrl(post, url) {
     if (isPdfPost(url)) {
       _launchURL(url);
       return;
@@ -243,13 +342,25 @@ class _MyHomePageState extends State<MyHomePage> {
   loadData() async {
     logger.d("Loading stories");
     http.Response response =
-        await http.get(Uri.parse(currentURL)).catchError((error) {
+    await http.get(Uri.parse(currentURL)).catchError((error) {
       print(error);
       return null;
     });
     setState(() {
       widgets = json.decode(response.body).take(100).toList();
     });
+    loadPosts();
+  }
+
+  loadPosts() async {
+    logger.d("Loading posts");
+    for (var i = 0; i < widgets.length; i++) {
+      if (post[widgets[i]] != null) {
+        logger.d("Post already loaded: $i, skipping...");
+        continue;
+      }
+      loadPost(widgets[i]);
+    }
   }
 
   loadPost(int item) async {
@@ -262,7 +373,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "https://hacker-news.firebaseio.com/v0/item/$item.json?print=pretty";
     logger.d("Loading post: $dataURL");
     http.Response response =
-        await http.get(Uri.parse(dataURL)).catchError((error) {
+    await http.get(Uri.parse(dataURL)).catchError((error) {
       print(error);
       return null;
     });
@@ -271,5 +382,25 @@ class _MyHomePageState extends State<MyHomePage> {
     });
     loadingState[item] = false;
     logger.d("Post loaded for $item: ${post[item]}");
+  }
+
+  void _generateQrCode(link) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          AlertDialog(
+            title: Text(textAlign: TextAlign.center,"Scan to open link"),
+            backgroundColor: Colors.white,
+            content: Container(
+              width: 300.0,
+              height: 300.0,
+              child: QrImageView(
+                data: link,
+                version: QrVersions.auto,
+                size: 200.0,
+              ),
+            ),
+          ),
+    );
   }
 }

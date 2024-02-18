@@ -25,6 +25,8 @@ Sor far this app can do:
         + Share the current link.
         + Bookmark the story.
 5. Bookmark stories locally to re-visit later.
+6. Search & Filter articles.
+7. QR code to open link on external devices.
 
 
 ### TODO:

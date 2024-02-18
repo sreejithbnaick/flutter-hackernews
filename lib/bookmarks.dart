@@ -4,6 +4,7 @@ import 'package:hacker_news/bookmark_service.dart';
 import 'package:hacker_news/webview.dart';
 import 'package:share/share.dart';
 import 'package:url_launcher/url_launcher.dart';
+import 'package:qr_flutter/qr_flutter.dart';
 
 import 'main.dart';
 
@@ -77,6 +78,14 @@ class _BookmarksState extends State<Bookmarks> {
                         .size),
             items: <PopupMenuEntry>[
               PopupMenuItem(
+                value: "qr",
+                child: Row(
+                  children: <Widget>[
+                    Text("QR Code"),
+                  ],
+                ),
+              ),
+              PopupMenuItem(
                 value: "open",
                 child: Row(
                   children: <Widget>[
@@ -126,6 +135,12 @@ class _BookmarksState extends State<Bookmarks> {
       Share.share(post["url"]);
     } else if (value == "remove") {
       _removeBookmark(post);
+    } else if (value == "qr") {
+      String? url = post["url"];
+      if (url == null) {
+        url = "https://news.ycombinator.com/item?id=${post["id"]}";
+      }
+      _generateQrCode(url);
     }
   }
 
@@ -146,7 +161,7 @@ class _BookmarksState extends State<Bookmarks> {
   }
 
   onTapped(post) {
-    String url = post["url"];
+    String? url = post["url"];
     if (isPdfPost(url)) {
       _launchURL(url);
       return;
@@ -168,5 +183,25 @@ class _BookmarksState extends State<Bookmarks> {
 
   isPdfPost(url) {
     return url != null && url.endsWith(".pdf");
+  }
+
+  void _generateQrCode(link) {
+    showDialog(
+      context: context,
+      builder: (context) =>
+          AlertDialog(
+            title: Text(textAlign: TextAlign.center,"Scan to open link"),
+            backgroundColor: Colors.white,
+            content: Container(
+              width: 300.0,
+              height: 300.0,
+              child: QrImageView(
+                data: link,
+                version: QrVersions.auto,
+                size: 200.0,
+              ),
+            ),
+          ),
+    );
   }
 }
