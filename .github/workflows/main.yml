@@ -18,7 +18,7 @@ jobs:
     - run: flutter pub get
     - run: flutter test
     - run: echo ${{ secrets.KEYSTORE_BASE_64 }} > keystore-b64.txt
-    - run: base64 -d keystore-b64.txt > android/upload-keystore.jks
+    - run: base64 -d -i keystore-b64.txt > android/upload-keystore.jks
     - run: touch android/key.properties
     - run: echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> android/key.properties
     - run: echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
