@@ -26,12 +26,22 @@ class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
+    String title = kIsWeb ? "HackerNews" : "HN";
     return MaterialApp(
       title: 'HackerNews',
       theme: ThemeData(
           useMaterial3: true,
+          textSelectionTheme: TextSelectionThemeData(
+            cursorColor: Colors.white,
+            selectionColor: Colors.deepOrange,
+            selectionHandleColor: Colors.deepOrange,
+          ),
           searchBarTheme: SearchBarThemeData(
-            backgroundColor: MaterialStateProperty.all(Colors.white),
+            shadowColor: MaterialStateProperty.all(Colors.transparent),
+            backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
+            surfaceTintColor: MaterialStateProperty.all(Colors.deepOrange),
+            textStyle:
+                MaterialStateProperty.all(TextStyle(color: Colors.white)),
             shape: MaterialStateProperty.all(RoundedRectangleBorder(
                 borderRadius: BorderRadius.all(Radius.zero))),
           ),
@@ -41,7 +51,7 @@ class MyApp extends StatelessWidget {
             titleTextStyle: TextStyle(
                 color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
           )),
-      home: MyHomePage(title: 'HackerNews'),
+      home: MyHomePage(title: title),
     );
   }
 }
@@ -92,8 +102,8 @@ class _MyHomePageState extends State<MyHomePage> {
     setState(() {
       widgets = widgetBackup
           .where((element) =>
-      post[element]["title"].toString().toLowerCase().contains(value) ||
-          post[element]["url"].toString().toLowerCase().contains(value))
+              post[element]["title"].toString().toLowerCase().contains(value) ||
+              post[element]["url"].toString().toLowerCase().contains(value))
           .toList();
     });
   }
@@ -119,10 +129,11 @@ class _MyHomePageState extends State<MyHomePage> {
                   autoFocus: true,
                   hintText: "Search",
                   controller: searchController,
-                  leading: Icon(Icons.search),
+                  textInputAction: TextInputAction.search,
+                  leading: Icon(Icons.search, color: Colors.white),
                   trailing: [
                     IconButton(
-                      icon: Icon(Icons.close),
+                      icon: Icon(Icons.close, color: Colors.white),
                       onPressed: () {
                         setState(() {
                           widgets = widgetBackup;
@@ -141,6 +152,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // Search
             IconButton(
               icon: Icon(Icons.search),
+              tooltip: "Search",
               onPressed: () {
                 setState(() {
                   widgetBackup = widgets;
@@ -151,6 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // Top stories
             IconButton(
               icon: Icon(Icons.vertical_align_top_sharp),
+              tooltip: "Top stories",
               onPressed: () async {
                 currentURL = topStories;
                 loadData();
@@ -159,6 +172,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // Best stories
             IconButton(
               icon: Icon(Icons.star),
+              tooltip: "Best stories",
               onPressed: () async {
                 currentURL = bestStories;
                 loadData();
@@ -167,6 +181,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // New stories
             IconButton(
               icon: Icon(Icons.new_releases),
+              tooltip: "New stories",
               onPressed: () async {
                 currentURL = newStories;
                 loadData();
@@ -175,6 +190,7 @@ class _MyHomePageState extends State<MyHomePage> {
             // Bookmarks
             IconButton(
               icon: Icon(Icons.bookmarks),
+              tooltip: "Bookmarks",
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => BookmarksScreen()));
@@ -195,7 +211,7 @@ class _MyHomePageState extends State<MyHomePage> {
     var postData = post[postId];
     logger.d("Data: $postData");
     String title =
-    postData == null ? "Loading" : "${i + 1}. ${postData["title"]}";
+        postData == null ? "Loading" : "${i + 1}. ${postData["title"]}";
     int score = postData == null ? 0 : postData["score"];
     if (postData == null) {
       loadPost(postId);
@@ -212,12 +228,9 @@ class _MyHomePageState extends State<MyHomePage> {
               position: RelativeRect.fromRect(
                   tapPosition & Size(40, 40),
                   Offset.zero &
-                  (Overlay
-                      .of(context)
-                      .context
-                      .findRenderObject()
-                  as RenderBox)
-                      .size),
+                      (Overlay.of(context).context.findRenderObject()
+                              as RenderBox)
+                          .size),
               items: <PopupMenuEntry>[
                 PopupMenuItem(
                   value: "openHn",
@@ -268,9 +281,9 @@ class _MyHomePageState extends State<MyHomePage> {
           title: Text("$title",
               textDirection: TextDirection.ltr,
               style: TextStyle(
-                  fontSize: 16,
+                  fontSize: 14,
                   color: Colors.black87,
-                  fontWeight: FontWeight.bold)),
+                  fontWeight: FontWeight.w600)),
           subtitle: Text("Points: $score"),
           onTap: () => onTapped(postData),
         ));
@@ -342,7 +355,7 @@ class _MyHomePageState extends State<MyHomePage> {
   loadData() async {
     logger.d("Loading stories");
     http.Response response =
-    await http.get(Uri.parse(currentURL)).catchError((error) {
+        await http.get(Uri.parse(currentURL)).catchError((error) {
       print(error);
       return null;
     });
@@ -373,7 +386,7 @@ class _MyHomePageState extends State<MyHomePage> {
         "https://hacker-news.firebaseio.com/v0/item/$item.json?print=pretty";
     logger.d("Loading post: $dataURL");
     http.Response response =
-    await http.get(Uri.parse(dataURL)).catchError((error) {
+        await http.get(Uri.parse(dataURL)).catchError((error) {
       print(error);
       return null;
     });
@@ -387,20 +400,19 @@ class _MyHomePageState extends State<MyHomePage> {
   void _generateQrCode(link) {
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: Text(textAlign: TextAlign.center,"Scan to open link"),
-            backgroundColor: Colors.white,
-            content: Container(
-              width: 300.0,
-              height: 300.0,
-              child: QrImageView(
-                data: link,
-                version: QrVersions.auto,
-                size: 200.0,
-              ),
-            ),
+      builder: (context) => AlertDialog(
+        title: Text(textAlign: TextAlign.center, "Scan to open link"),
+        backgroundColor: Colors.white,
+        content: Container(
+          width: 300.0,
+          height: 300.0,
+          child: QrImageView(
+            data: link,
+            version: QrVersions.auto,
+            size: 200.0,
           ),
+        ),
+      ),
     );
   }
 }
