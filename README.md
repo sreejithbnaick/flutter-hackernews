@@ -34,6 +34,7 @@ Sor far this app can do:
 1. ~~PDF links does not work. Need to add support for PDF.~~ Now will open external PDF Viewer. 
 2. ~~Ask HN discussion link does not open. Need to fix it.~~ Will go straight to the page.
 3. ~~Bookmark stories locally, bookmark list screen.~~ Can bookmark stories now.
-4. Export & Import Bookmarks.
-5. Error State Handling: Refresh Page, Refresh Item, Retry, Offline support.
-6. Add test :P
+4. ~~Search & Filter articles.~~ Can search & filter articles now.
+5. ~~Share links via QR code.~~ Can generate QR code now.
+6. Export & Import Bookmarks.
+7. Error State Handling: Refresh Page, Refresh Item, Retry, Offline support.
