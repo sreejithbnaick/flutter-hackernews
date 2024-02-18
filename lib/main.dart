@@ -7,7 +7,7 @@ import 'package:hacker_news/bookmarks.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
-import 'package:share/share.dart';
+import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'webview.dart';

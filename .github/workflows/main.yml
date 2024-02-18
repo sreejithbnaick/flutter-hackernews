@@ -17,6 +17,13 @@ jobs:
         flutter-version: '3.19.0'
     - run: flutter pub get
     - run: flutter test
+    - run: echo ${{ secrets.KEYSTORE_BASE_64 }} > keystore-b64.txt
+    - run: base64 -d keystore-b64.txt > android/upload-keystore.jks
+    - run: touch android/key.properties
+    - run: echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> android/key.properties
+    - run: echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> android/key.properties
+    - run: echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> android/key.properties
+    - run: echo "storeFile=../upload-keystore.jks" >> android/key.properties
     - run: flutter build apk --release --split-per-abi
     - name: Create a Release APK
       uses: ncipollo/release-action@v1
