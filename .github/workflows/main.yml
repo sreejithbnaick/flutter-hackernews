@@ -23,10 +23,9 @@ jobs:
     - run: base64 -d -i keystore.txt > upload-keystore.jks
     - run: shasum upload-keystore.jks
     - run: mv upload-keystore.jks android/upload-keystore.jks
-    - run: echo "storePassword=${{ secrets.STORE_PASSWORD }}" >> key.properties
-    - run: echo "keyPassword=${{ secrets.KEY_PASSWORD }}" >> key.properties
-    - run: echo "keyAlias=${{ secrets.KEY_ALIAS }}" >> key.properties
-    - run: echo "storeFile=../upload-keystore.jks" >> key.properties
+    - run: echo ${{ secrets.PROPERTIES }} > properties.txt
+    - run: shasum properties.txt
+    - run: base64 -d -i properties.txt > key.properties
     - run: shasum key.properties
     - run: mv key.properties android/key.properties
     - run: flutter build apk --release --split-per-abi
