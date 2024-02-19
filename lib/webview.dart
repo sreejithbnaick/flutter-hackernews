@@ -159,33 +159,58 @@ class _WebViewContainerState extends State<WebViewContainer> {
             },
           )
         ]),
-        body: Column(
-          children: [
-            Expanded(
-                child: Stack(
-              children: <Widget>[
-                WebViewWidget(controller: _controller),
-                new Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      GestureDetector(
-                        onHorizontalDragEnd: _settleLeft,
-                        child: Container(
-                          width: _kEdgeDragWidth,
-                          color: Colors.transparent,
-                        ),
+        body: Container(
+            child: Column(children: <Widget>[
+          Expanded(
+              child: Stack(
+            children: <Widget>[
+              WebViewWidget(controller: _controller),
+              new Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    GestureDetector(
+                      onHorizontalDragEnd: _settleLeft,
+                      child: Container(
+                        width: _kEdgeDragWidth,
+                        color: Colors.transparent,
                       ),
-                      GestureDetector(
-                        onHorizontalDragEnd: _settleRight,
-                        child: Container(
-                          width: _kEdgeDragWidth,
-                          color: Colors.transparent,
-                        ),
-                      )
-                    ])
+                    ),
+                    GestureDetector(
+                      onHorizontalDragEnd: _settleRight,
+                      child: Container(
+                        width: _kEdgeDragWidth,
+                        color: Colors.transparent,
+                      ),
+                    )
+                  ])
+            ],
+          )),
+          Container(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: <Widget>[
+                TextButton.icon(
+                  onPressed: () {
+                    _controller.canGoBack().then<void>((onValue) {
+                      if (onValue) _controller.goBack();
+                    });
+                  },
+                  icon: Icon(Icons.arrow_back),
+                  label: Text('Back'),
+                ),
+                // Forward button with icon on right end
+                TextButton.icon(
+                  onPressed: () {
+                    _controller.canGoForward().then<void>((onValue) {
+                      if (onValue) _controller.goForward();
+                    });
+                  },
+                  label: Text('Forward'),
+                  icon: Icon(Icons.arrow_forward),
+                ),
               ],
-            ))
-          ],
-        ));
+            ),
+          )
+        ])));
   }
 }
