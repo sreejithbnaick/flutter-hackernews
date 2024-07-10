@@ -1,3 +1,7 @@
+import 'dart:convert';
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:hacker_news/bookmark_service.dart';
@@ -5,6 +9,8 @@ import 'package:hacker_news/webview.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 
 import 'main.dart';
 
@@ -43,11 +49,82 @@ class _BookmarksState extends State<Bookmarks> {
     });
   }
 
+  import() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['txt'],
+    );
+    if (result !=null) {
+      try {
+        final platformFile = result.files.single;
+        final contents = await File(platformFile.path!).readAsString();
+        var data = jsonDecode(contents);
+        if (data is List<dynamic>) {
+          importDataToBookmarks(data);
+        }
+      } catch (error) {
+        print('Error importing file: $error');
+      }
+    }
+  }
+
+  importDataToBookmarks(List<dynamic> data) async {
+    try {
+        await widget.bookmarkService.saveBookmarks(data);
+    } catch (error) {
+      print('Error importing file: $error');
+    }
+  }
+
+  export() async {
+    // convert bookmarks list to json array of key value objects
+    var data = jsonEncode(bookmarks);
+    logger.d("Export: ${data}");
+    exportFileAndShare(data);
+  }
+
+  Future<void> exportFileAndShare(String data) async {
+    try {
+    // Get the application documents directory (private)
+    final directory = await getApplicationDocumentsDirectory();
+
+    // Generate a unique filename with timestamp
+    final filename = 'hnb_${DateTime.now().millisecondsSinceEpoch}.txt';
+    final filePath = '${directory.path}/$filename';
+    logger.d("Exporting file as ${filePath}");
+
+    // Write data to the file
+
+      final file = File(filePath);
+      await file.writeAsString(data);
+
+      // Share the created file
+      await Share.shareXFiles([XFile(filePath)], text: 'Exported file');
+    } catch (error) {
+      // Handle errors gracefully, e.g., show a snackbar to the user
+      print('Error creating and sharing file: $error');
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: Text('Bookmarks'),
+        actions: [
+          IconButton(
+            icon: Icon(Icons.upload, color: Colors.white),
+            onPressed: () {
+              import();
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.download, color: Colors.white),
+            onPressed: () {
+              export();
+            },
+          )
+        ],
       ),
       body: ListView.builder(
           itemCount: bookmarks.length,
