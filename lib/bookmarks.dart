@@ -68,9 +68,49 @@ class _BookmarksState extends State<Bookmarks> {
     }
   }
 
+  Future<bool> showImportOptionDialog(BuildContext context) async {
+    return await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Import Options'),
+          content: Text('Choose how you want to import the data'),
+          actions: <Widget>[
+            TextButton(
+              child: Text('Replace'),
+              onPressed: () {
+                Navigator.of(context).pop(true); // Return true for replace
+              },
+            ),
+            TextButton(
+              child: Text('Append'),
+              onPressed: () {
+                Navigator.of(context).pop(false); // Return false for append
+              },
+            ),
+          ],
+        );
+      },
+    ) ?? false; // Return false if dialog is dismissed without choosing an option
+  }
+
   importDataToBookmarks(List<dynamic> data) async {
     try {
+      bool replace = await showImportOptionDialog(context);
+      // Call your data import function here, passing replace as a parameter
+      if (replace) {
         await widget.bookmarkService.saveBookmarks(data);
+        setState(() {
+          bookmarks = data.reversed.toList();
+        });
+      } else {
+        var list = await widget.bookmarkService.getBookmarks();
+        list.addAll(data);
+        await widget.bookmarkService.saveBookmarks(list);
+        setState(() {
+          bookmarks = list.reversed.toList();
+        });
+      }
     } catch (error) {
       print('Error importing file: $error');
     }
@@ -113,12 +153,14 @@ class _BookmarksState extends State<Bookmarks> {
         title: Text('Bookmarks'),
         actions: [
           IconButton(
+            tooltip: "Import bookmarks",
             icon: Icon(Icons.upload, color: Colors.white),
             onPressed: () {
               import();
             },
           ),
           IconButton(
+            tooltip: "Export bookmarks",
             icon: Icon(Icons.download, color: Colors.white),
             onPressed: () {
               export();
@@ -137,7 +179,10 @@ class _BookmarksState extends State<Bookmarks> {
   Widget getRow(BuildContext context, int position) {
     var post = bookmarks[position];
     String title = post["title"];
-    String url = post["url"];
+    String? url = post["url"];
+    if (url == null) {
+      url = "https://news.ycombinator.com/item?id=${post["id"]}";
+    }
     var tapPosition;
     var openMenuTxt = kIsWeb ? "Open" : "Open in browser";
     return GestureDetector(
@@ -198,7 +243,7 @@ class _BookmarksState extends State<Bookmarks> {
                 fontSize: 16,
                 color: Colors.black87,
                 fontWeight: FontWeight.bold)),
-        subtitle: Text(url),
+        subtitle: Text("$url"),
         onTap: () => onTapped(post),
       ),
     );
@@ -255,7 +300,8 @@ class _BookmarksState extends State<Bookmarks> {
     Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => WebViewScreen(post["title"], url, post)));
+            builder: (context) => WebViewScreen(post["title"], url, post)))
+    .then((value) => loadData());
   }
 
   isPdfPost(url) {

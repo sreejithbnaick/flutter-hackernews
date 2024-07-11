@@ -127,8 +127,22 @@ class _WebViewContainerState extends State<WebViewContainer> {
   }
 
   _bookmark(post) async {
+    String? url = post["url"];
+    if (url == null) {
+      url = "https://news.ycombinator.com/item?id=${post["id"]}";
+    }
+    String webUrl = await _controller.currentUrl() ?? "";
     var list = await bookmarkService.getBookmarks();
-    list.add(post);
+    if (url != webUrl) {
+      String title = await _controller.getTitle() ?? "";
+      Map<String, dynamic> customPost = {
+        "title": title,
+        "url": webUrl,
+      };
+      list.add(customPost);
+    } else {
+      list.add(post);
+    }
     await bookmarkService.saveBookmarks(list);
   }
 
@@ -138,6 +152,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
         appBar: AppBar(title: Text(title), actions: <Widget>[
           // action button
           IconButton(
+            tooltip: "Open in browser",
             icon: Icon(Icons.open_in_browser),
             onPressed: () async {
               var url = await _controller.currentUrl();
@@ -146,6 +161,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
           ),
           // action button
           IconButton(
+            tooltip: "Share",
             icon: Icon(Icons.share),
             onPressed: () async {
               var url = await _controller.currentUrl();
@@ -153,6 +169,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
             },
           ),
           IconButton(
+            tooltip: "Bookmark",
             icon: Icon(Icons.bookmark),
             onPressed: () async {
               _bookmark(post);
