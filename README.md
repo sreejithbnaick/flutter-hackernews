@@ -27,6 +27,8 @@ Sor far this app can do:
 5. Bookmark stories locally to re-visit later.
 6. Search & Filter articles.
 7. QR code to open link on external devices.
+8. Export & Import bookmarks.
+9. Bookmark other webpage links too. Any weblink from webview can be bookmarked.
 
 
 ### TODO:
@@ -36,5 +38,8 @@ Sor far this app can do:
 3. ~~Bookmark stories locally, bookmark list screen.~~ Can bookmark stories now.
 4. ~~Search & Filter articles.~~ Can search & filter articles now.
 5. ~~Share links via QR code.~~ Can generate QR code now.
-6. Export & Import Bookmarks.
-7. Error State Handling: Refresh Page, Refresh Item, Retry, Offline support.
+6. ~~Export & Import Bookmarks.~~ Can export and import bookmarks.
+7. ~~Bookmark other webpages.~~ Can bookmark other web pages too.
+8. Open webpage from QR code.
+9. Bookmark from QR code.
+9. Error State Handling: Refresh Page, Refresh Item, Retry, Offline support.
