@@ -16,9 +16,11 @@ Sor far this app can do:
     + To open the story url in a Browser.
     + To share the story url.
     + To bookmark the story.
+    + Share link as QR code.
+    + Open HN page.
 4. From Webview screen do the following:
-    + Edge swipe from Left to Go Backwards.
-    + Edge swipe from right to Go Forwards.
+    + Edge swipe from Left to Go Backwards or use "Back" button at bottom.
+    + Edge swipe from right to Go Forwards or use "Forward" button at bottom.
     + Backpress will exit the Webview screen to top stories list.
     + Using menu in action bar: 
         + Open the current link a browser.
