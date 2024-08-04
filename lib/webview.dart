@@ -141,6 +141,10 @@ class _WebViewContainerState extends State<WebViewContainer> {
       };
       list.add(customPost);
     } else {
+      if (post["title"] == null || post["title"] == "") {
+         String title = await _controller.getTitle() ?? "";
+         post["title"] = title;
+      }
       list.add(post);
     }
     await bookmarkService.saveBookmarks(list);

@@ -17,7 +17,7 @@ pluginManagement {
     }
 }
 buildscript {
-    ext.kotlin_version = '1.7.0'
+    ext.kotlin_version = '1.9.0'
 }
 
 plugins {

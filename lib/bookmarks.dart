@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:hacker_news/bookmark_service.dart';
+import 'package:hacker_news/qr_code_scanner.dart';
 import 'package:hacker_news/webview.dart';
 import 'package:share_plus/share_plus.dart';
 import 'package:url_launcher/url_launcher.dart';
@@ -118,7 +119,8 @@ class _BookmarksState extends State<Bookmarks> {
 
   export() async {
     // convert bookmarks list to json array of key value objects
-    var data = jsonEncode(bookmarks);
+    var list = await widget.bookmarkService.getBookmarks();
+    var data = jsonEncode(list);
     logger.d("Export: ${data}");
     exportFileAndShare(data);
   }
@@ -152,6 +154,15 @@ class _BookmarksState extends State<Bookmarks> {
       appBar: AppBar(
         title: Text('Bookmarks'),
         actions: [
+          IconButton(
+            tooltip: "Scan QR code",
+            icon: Icon(Icons.qr_code, color: Colors.white),
+            onPressed: () {
+              Navigator.push(context,
+                  MaterialPageRoute(builder: (context) => QRScannerScreen()))
+                  .then((value) => loadData());
+            }
+          ),
           IconButton(
             tooltip: "Import bookmarks",
             icon: Icon(Icons.upload, color: Colors.white),
