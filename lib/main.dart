@@ -29,6 +29,29 @@ class MyApp extends StatelessWidget {
     String title = kIsWeb ? "HackerNews" : "HN";
     return MaterialApp(
       title: 'HackerNews',
+      darkTheme: ThemeData(
+        brightness: Brightness.dark,
+        textSelectionTheme: TextSelectionThemeData(
+          cursorColor: Colors.grey,
+          selectionColor: Colors.grey,
+          selectionHandleColor: Colors.grey,
+        ),
+        searchBarTheme: SearchBarThemeData(
+          shadowColor: MaterialStateProperty.all(Colors.transparent),
+          backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
+          surfaceTintColor: MaterialStateProperty.all(Colors.deepOrange),
+          textStyle:
+          MaterialStateProperty.all(TextStyle(color: Colors.white)),
+          shape: MaterialStateProperty.all(RoundedRectangleBorder(
+              borderRadius: BorderRadius.all(Radius.zero))),
+        ),
+        appBarTheme: AppBarTheme(
+          backgroundColor: Colors.deepOrange,
+          iconTheme: IconThemeData(color: Colors.white),
+          titleTextStyle: TextStyle(
+              color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+        ),
+      ),
       theme: ThemeData(
           useMaterial3: true,
           textSelectionTheme: TextSelectionThemeData(
@@ -282,7 +305,6 @@ class _MyHomePageState extends State<MyHomePage> {
               textDirection: TextDirection.ltr,
               style: TextStyle(
                   fontSize: 14,
-                  color: Colors.black87,
                   fontWeight: FontWeight.w600)),
           subtitle: Text("Points: $score"),
           onTap: () => onTapped(postData),
