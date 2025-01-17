@@ -44,4 +44,5 @@ Sor far this app can do:
 7. ~~Bookmark other webpages.~~ Can bookmark other web pages too.
 8. ~~Open webpage from QR code~~. Can open webpage from Flutter HackerNews website or any QR code to web url.
 9. Bookmark from QR code.
-9. Error State Handling: Refresh Page, Refresh Item, Retry, Offline support.
+10. Dark Theme support.
+11. Error State Handling: Refresh Page, Refresh Item, Retry, Offline support.
