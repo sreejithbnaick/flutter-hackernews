@@ -11,6 +11,10 @@ import 'bookmark_service.dart';
 const double _kEdgeDragWidth = 20.0;
 const double _kMinFlingVelocity = 365.0;
 
+bool isDarkMode(BuildContext context) {
+  return MediaQuery.of(context).platformBrightness == Brightness.dark;
+}
+
 class WebViewScreen extends StatelessWidget {
   final url;
   final title;
@@ -43,6 +47,9 @@ class _WebViewContainerState extends State<WebViewContainer> {
   final post;
   late WebViewController _controller;
 
+  var actualWebBgColor = "";
+  var webBgChanged = false;
+
   _WebViewContainerState(this.title, this._url, this.post);
 
   @override
@@ -74,7 +81,13 @@ class _WebViewContainerState extends State<WebViewContainer> {
             // Update loading bar.
           },
           onPageStarted: (String url) {},
-          onPageFinished: (String url) {},
+          onPageFinished: (String url) {
+            // Get the background color of the web page
+            controller
+                .runJavaScriptReturningResult(
+                    "document.body.style.backgroundColor")
+                .then((value) => actualWebBgColor = value.toString());
+          },
           onWebResourceError: (WebResourceError error) {
             logger.d("onWebResourceError: " + error.description);
           },
@@ -142,8 +155,8 @@ class _WebViewContainerState extends State<WebViewContainer> {
       list.add(customPost);
     } else {
       if (post["title"] == null || post["title"] == "") {
-         String title = await _controller.getTitle() ?? "";
-         post["title"] = title;
+        String title = await _controller.getTitle() ?? "";
+        post["title"] = title;
       }
       list.add(post);
     }
@@ -219,6 +232,26 @@ class _WebViewContainerState extends State<WebViewContainer> {
                   icon: Icon(Icons.arrow_back),
                   label: Text('Back'),
                 ),
+                IconButton(
+                    tooltip: 'Toggle Theme Mode',
+                    onPressed: () {
+                      if (webBgChanged) {
+                        _controller.runJavaScript(
+                            "document.body.style.backgroundColor = $actualWebBgColor;");
+                        webBgChanged = false;
+                      } else {
+                        var color;
+                        if (isDarkMode(context)) {
+                          color = 'white';
+                        } else {
+                          color = 'black';
+                        }
+                        _controller.runJavaScript(
+                            "document.body.style.backgroundColor = '$color';");
+                        webBgChanged = true;
+                      }
+                    },
+                    icon: Icon(Icons.light_mode)),
                 // Forward button with icon on right end
                 TextButton.icon(
                   onPressed: () {

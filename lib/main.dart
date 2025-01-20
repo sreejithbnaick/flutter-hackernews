@@ -22,6 +22,49 @@ const String newStories =
 const String bestStories =
     "https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty";
 
+final lightTheme = ThemeData.light().copyWith(
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: Colors.white,
+      selectionColor: Colors.deepOrange,
+      selectionHandleColor: Colors.deepOrange,
+    ),
+    searchBarTheme: SearchBarThemeData(
+      shadowColor: MaterialStateProperty.all(Colors.transparent),
+      backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
+      surfaceTintColor: MaterialStateProperty.all(Colors.deepOrange),
+      textStyle: MaterialStateProperty.all(TextStyle(color: Colors.white)),
+      shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.zero))),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.deepOrange,
+      iconTheme: IconThemeData(color: Colors.white),
+      titleTextStyle: TextStyle(
+          color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+    ));
+
+final darkTheme = ThemeData.dark().copyWith(
+    brightness: Brightness.dark,
+    textSelectionTheme: TextSelectionThemeData(
+      cursorColor: Colors.white,
+      selectionColor: Colors.white,
+      selectionHandleColor: Colors.white,
+    ),
+    searchBarTheme: SearchBarThemeData(
+      shadowColor: MaterialStateProperty.all(Colors.transparent),
+      backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
+      surfaceTintColor: MaterialStateProperty.all(Colors.deepOrange),
+      textStyle: MaterialStateProperty.all(TextStyle(color: Colors.white)),
+      shape: MaterialStateProperty.all(
+          RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.zero))),
+    ),
+    appBarTheme: AppBarTheme(
+      backgroundColor: Colors.deepOrange,
+      iconTheme: IconThemeData(color: Colors.white),
+      titleTextStyle: TextStyle(
+          color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
+    ));
+
 class MyApp extends StatelessWidget {
   // This widget is the root of your application.
   @override
@@ -29,51 +72,8 @@ class MyApp extends StatelessWidget {
     String title = kIsWeb ? "HackerNews" : "HN";
     return MaterialApp(
       title: 'HackerNews',
-      darkTheme: ThemeData(
-        brightness: Brightness.dark,
-        textSelectionTheme: TextSelectionThemeData(
-          cursorColor: Colors.grey,
-          selectionColor: Colors.grey,
-          selectionHandleColor: Colors.grey,
-        ),
-        searchBarTheme: SearchBarThemeData(
-          shadowColor: MaterialStateProperty.all(Colors.transparent),
-          backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
-          surfaceTintColor: MaterialStateProperty.all(Colors.deepOrange),
-          textStyle:
-          MaterialStateProperty.all(TextStyle(color: Colors.white)),
-          shape: MaterialStateProperty.all(RoundedRectangleBorder(
-              borderRadius: BorderRadius.all(Radius.zero))),
-        ),
-        appBarTheme: AppBarTheme(
-          backgroundColor: Colors.deepOrange,
-          iconTheme: IconThemeData(color: Colors.white),
-          titleTextStyle: TextStyle(
-              color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
-        ),
-      ),
-      theme: ThemeData(
-          useMaterial3: true,
-          textSelectionTheme: TextSelectionThemeData(
-            cursorColor: Colors.white,
-            selectionColor: Colors.deepOrange,
-            selectionHandleColor: Colors.deepOrange,
-          ),
-          searchBarTheme: SearchBarThemeData(
-            shadowColor: MaterialStateProperty.all(Colors.transparent),
-            backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
-            surfaceTintColor: MaterialStateProperty.all(Colors.deepOrange),
-            textStyle:
-                MaterialStateProperty.all(TextStyle(color: Colors.white)),
-            shape: MaterialStateProperty.all(RoundedRectangleBorder(
-                borderRadius: BorderRadius.all(Radius.zero))),
-          ),
-          appBarTheme: AppBarTheme(
-            backgroundColor: Colors.deepOrange,
-            iconTheme: IconThemeData(color: Colors.white),
-            titleTextStyle: TextStyle(
-                color: Colors.white, fontSize: 20, fontWeight: FontWeight.w600),
-          )),
+      darkTheme: darkTheme,
+      theme: lightTheme,
       home: MyHomePage(title: title),
     );
   }
@@ -303,9 +303,7 @@ class _MyHomePageState extends State<MyHomePage> {
         child: ListTile(
           title: Text("$title",
               textDirection: TextDirection.ltr,
-              style: TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.w600)),
+              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
           subtitle: Text("Points: $score"),
           onTap: () => onTapped(postData),
         ));
