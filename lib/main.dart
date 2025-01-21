@@ -23,10 +23,11 @@ const String bestStories =
     "https://hacker-news.firebaseio.com/v0/beststories.json?print=pretty";
 
 final lightTheme = ThemeData.light().copyWith(
+    secondaryHeaderColor: Colors.black,
     textSelectionTheme: TextSelectionThemeData(
-      cursorColor: Colors.white,
-      selectionColor: Colors.deepOrange,
-      selectionHandleColor: Colors.deepOrange,
+      cursorColor: Colors.black,
+      selectionColor: Colors.black45,
+      selectionHandleColor: Colors.black,
     ),
     searchBarTheme: SearchBarThemeData(
       shadowColor: MaterialStateProperty.all(Colors.transparent),
@@ -44,6 +45,7 @@ final lightTheme = ThemeData.light().copyWith(
     ));
 
 final darkTheme = ThemeData.dark().copyWith(
+    secondaryHeaderColor: Colors.white,
     brightness: Brightness.dark,
     textSelectionTheme: TextSelectionThemeData(
       cursorColor: Colors.white,
@@ -229,6 +231,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   Widget getRow(BuildContext context, int i) {
+    final theme = Theme.of(context);
     logger.d("getRow $i");
     var postId = widgets[i];
     var postData = post[postId];
@@ -236,8 +239,16 @@ class _MyHomePageState extends State<MyHomePage> {
     String title =
         postData == null ? "Loading" : "${i + 1}. ${postData["title"]}";
     int score = postData == null ? 0 : postData["score"];
+    var host = "";
     if (postData == null) {
       loadPost(postId);
+    } else {
+      var url = postData["url"];
+      if (url != null) {
+        host = " (${Uri.parse(url).host})";
+      } else {
+        host = " (news.ycombinator.com)";
+      }
     }
     var openMenuTxt = kIsWeb ? "Open" : "Open in browser";
     var tapPosition;
@@ -301,10 +312,22 @@ class _MyHomePageState extends State<MyHomePage> {
           });
         },
         child: ListTile(
-          title: Text("$title",
-              textDirection: TextDirection.ltr,
-              style: TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-          subtitle: Text("Points: $score"),
+          title: RichText(
+            text: TextSpan(children: [
+              TextSpan(
+                  text: "$title",
+                  style: TextStyle(
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: theme.secondaryHeaderColor)),
+              TextSpan(
+                  text: "$host",
+                  style: TextStyle(fontSize: 12, color: theme.hintColor)),
+            ]),
+          ),
+          subtitle: Padding(
+              padding: EdgeInsets.only(top: 4),
+              child: Text("Points: $score", style: TextStyle(fontSize: 12))),
           onTap: () => onTapped(postData),
         ));
   }
