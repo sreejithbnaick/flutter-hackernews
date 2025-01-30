@@ -36,11 +36,32 @@ class Bookmarks extends StatefulWidget {
 
 class _BookmarksState extends State<Bookmarks> {
   List bookmarks = [];
+  List bookmarkBackup = [];
+  final TextEditingController searchController = TextEditingController();
+  bool showSearchBar = false;
 
   @override
   void initState() {
     super.initState();
     loadData();
+  }
+
+  onSearch(String value) {
+    logger.d("Search: $value");
+    if (value.isEmpty) {
+      setState(() {
+        bookmarks = bookmarkBackup;
+      });
+      return;
+    }
+    logger.d("Search: Searching... ${bookmarkBackup.length}");
+    setState(() {
+      bookmarks = bookmarkBackup
+          .where((element) =>
+      element["title"].toString().toLowerCase().contains(value) ||
+          element["url"].toString().toLowerCase().contains(value))
+          .toList();
+    });
   }
 
   loadData() async {
@@ -153,7 +174,44 @@ class _BookmarksState extends State<Bookmarks> {
     return Scaffold(
       appBar: AppBar(
         title: Text('Bookmarks'),
+        bottom: PreferredSize(
+            preferredSize: Size.fromHeight(0.0),
+            child: Visibility(
+              visible: showSearchBar,
+              child: SearchBar(
+                autoFocus: true,
+                hintText: "Search",
+                controller: searchController,
+                textInputAction: TextInputAction.search,
+                leading: Icon(Icons.search, color: Colors.white),
+                trailing: [
+                  IconButton(
+                    icon: Icon(Icons.close, color: Colors.white),
+                    onPressed: () {
+                      setState(() {
+                        bookmarks = bookmarkBackup;
+                        searchController.clear();
+                        showSearchBar = false;
+                      });
+                    },
+                  )
+                ],
+                onSubmitted: (value) {
+                  onSearch(value);
+                },
+              ),
+            )),
         actions: [
+          IconButton(
+            icon: Icon(Icons.search),
+            tooltip: "Search",
+            onPressed: () {
+              setState(() {
+                bookmarkBackup = bookmarks;
+                showSearchBar = true;
+              });
+            },
+          ),
           IconButton(
             tooltip: "Scan QR code",
             icon: Icon(Icons.qr_code, color: Colors.white),
