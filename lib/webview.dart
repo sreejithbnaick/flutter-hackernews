@@ -145,22 +145,22 @@ class _WebViewContainerState extends State<WebViewContainer> {
       url = "https://news.ycombinator.com/item?id=${post["id"]}";
     }
     String webUrl = await _controller.currentUrl() ?? "";
-    var list = await bookmarkService.getBookmarks();
+    var bookmarkPost;
     if (url != webUrl) {
       String title = await _controller.getTitle() ?? "";
       Map<String, dynamic> customPost = {
         "title": title,
         "url": webUrl,
       };
-      list.add(customPost);
+      bookmarkPost = customPost;
     } else {
       if (post["title"] == null || post["title"] == "") {
         String title = await _controller.getTitle() ?? "";
         post["title"] = title;
       }
-      list.add(post);
+      bookmarkPost = post;
     }
-    await bookmarkService.saveBookmarks(list);
+    await bookmarkService.bookmark(bookmarkPost);
   }
 
   @override

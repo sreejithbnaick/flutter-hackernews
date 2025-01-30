@@ -352,9 +352,7 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _bookmark(post) async {
-    var list = await bookmarkService.getBookmarks();
-    list.add(post);
-    await bookmarkService.saveBookmarks(list);
+    await bookmarkService.bookmark(post);
   }
 
   _launchURL(url) async {
