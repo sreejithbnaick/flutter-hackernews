@@ -352,7 +352,13 @@ class _MyHomePageState extends State<MyHomePage> {
   }
 
   _bookmark(post) async {
-    await bookmarkService.bookmark(post);
+    // Lighter post object for bookmarking
+    var litePost = {
+      "title": post["title"],
+      "url": post["url"],
+      "id": post["id"],
+    };
+    await bookmarkService.bookmark(litePost);
   }
 
   _launchURL(url) async {
