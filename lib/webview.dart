@@ -46,6 +46,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
   final title;
   final post;
   late WebViewController _controller;
+  var showSearchBox = false;
 
   var actualWebBgColor = "";
   var webBgChanged = false;
@@ -167,6 +168,20 @@ class _WebViewContainerState extends State<WebViewContainer> {
   Widget build(BuildContext context) {
     return Scaffold(
         appBar: AppBar(title: Text(title), actions: <Widget>[
+          IconButton(
+              tooltip: "Search in page",
+              icon: Icon(Icons.search),
+              onPressed: () async {
+                if (showSearchBox) {
+                  setState(() {
+                    showSearchBox = false;
+                  });
+                } else {
+                  setState(() {
+                    showSearchBox = true;
+                  });
+                }
+              }),
           // action button
           IconButton(
             tooltip: "Open in browser",
@@ -195,6 +210,33 @@ class _WebViewContainerState extends State<WebViewContainer> {
         ]),
         body: Container(
             child: Column(children: <Widget>[
+          Visibility(
+            visible: showSearchBox,
+            child: Padding(
+              padding: EdgeInsets.only(
+                top: 24,
+                left: 24,
+                right: 24,
+                bottom: 24
+              ),
+              child: TextField(
+                maxLines: 1,
+                autofocus: true,
+                showCursor: true,
+                textInputAction: TextInputAction.next,
+                decoration: InputDecoration(
+                  border: OutlineInputBorder(),
+                  labelText: 'Search in page',
+                ),
+                onSubmitted: (String value) async {
+                  if (value.trim() == "") {
+                    return;
+                  }
+                  _controller.runJavaScript("self.find('${value.trim()}')");
+                },
+              ),
+            ),
+          ),
           Expanded(
               child: Stack(
             children: <Widget>[
