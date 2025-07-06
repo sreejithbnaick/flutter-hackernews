@@ -6,6 +6,7 @@ Try the Web app from here: https://flutterhackernews.web.app/
 
 or 
 Find playstore app: https://play.google.com/store/apps/details?id=in.codesmell.hacker_news
+
 or
 Try the APK from here: https://github.com/sreejithbnaick/flutter-hackernews/releases
 
