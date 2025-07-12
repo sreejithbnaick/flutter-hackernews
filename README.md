@@ -1,14 +1,38 @@
-# Simple HackerNews App Using Flutter
+# A simple, fast & clean article browser for Hacker News (Built using Flutter)
 
 <img src="./images/screen1.jpg" width="180"> <img src="./images/screen2.jpg" width="180"> <img src="./images/screen3.jpg" width="180">
 
-Try the Web app from here: https://flutterhackernews.web.app/
-
-or 
 Find playstore app: https://play.google.com/store/apps/details?id=in.codesmell.hacker_news
 
 or
+Try the Web app from here: https://flutterhackernews.web.app/
+
+or 
 Try the APK from here: https://github.com/sreejithbnaick/flutter-hackernews/releases
+
+<p>
+    Simple Hacker News is your personal app for browsing the top, best & latest stories published in HackerNews. This app is for one purpose: to give you a clean, fast, and simple way to browse HackerNews articles. 
+
+Unlike other HackerNews mobile apps, this app doesn't give much focus on writing or liking articles and comments. If you are looking for pure reading articles from HackerNews, trying to stay update on latest or best stories on HackerNews, this app will help you achieve. You can bookmark the articles you like it or read later, share it with your peers.
+
+Core Features:
+* Browse with Ease: Quickly access the Best, Top, and Latest 100 stories from HackerNews.
+* Clean Reading Experience: A minimalist interface designed to put the content first. Read articles using the convenient in-app browser.
+* Local Bookmarks: Save your favorite articles for later. All bookmarks are stored securely on your device and are deleted when you uninstall the app.
+* Export & Import: You have full control of your data. Export your bookmarks to a text file for backup or transfer, and import them back anytime.
+
+Your Privacy Comes First:
+This app is built on a foundation of respect for your privacy. We believe you should be able to read the articles without being the product.
+
+    ✅ Absolutely No Tracking: We do not use any analytics services. Your reading habits are your own business.
+    ✅ Zero Advertisements: Enjoy a 100% ad-free experience. Forever.
+    ✅ No User Accounts: No sign-up or login is required. We don't collect any of your personal information.
+    ✅ Minimal Permissions: The app only asks for Internet access to fetch the stories. That's it.
+
+Enjoy reading HackerNews articles in simple & clean way !!
+</p>
+
+
 
 Sor far this app can do:
 
