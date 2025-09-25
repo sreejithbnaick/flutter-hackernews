@@ -1,1 +1,89 @@
 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Hacker News Reader</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="Hacker News Reader - Read and explore top stories from Hacker News with a clean, simple interface.">
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            margin: 0;
+            padding: 0;
+            background: #f9f9f9;
+            color: #222;
+        }
+        header {
+            background: #ff6600;
+            color: #fff;
+            padding: 2rem 1rem 1rem 1rem;
+            text-align: center;
+        }
+        main {
+            max-width: 600px;
+            margin: 2rem auto;
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 18px rgba(0,0,0,0.04);
+            padding: 2rem;
+        }
+        h1, h2 {
+            margin: 0 0 1rem 0;
+        }
+        .contact-info {
+            margin-top: 2rem;
+            padding: 1.5rem;
+            background: #f3f3f3;
+            border-radius: 6px;
+        }
+        .contact-info p {
+            margin: 0.2rem 0;
+        }
+        .playstore {
+            margin-top: 2rem;
+            text-align: center;
+        }
+        .playstore img {
+            width: 160px;
+            margin-top: 0.5rem;
+        }
+        @media (max-width: 650px) {
+            main {
+                margin: 1rem;
+                padding: 1rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <h1>Hacker News Reader</h1>
+        <p>Your gateway to top stories and discussions from Hacker News</p>
+    </header>
+    <main>
+        <section>
+            <h2>Welcome!</h2>
+            <p>
+                Hacker News Reader is a simple and fast way to browse, read, and share stories from <a href="https://news.ycombinator.com/" target="_blank" rel="noopener">Hacker News</a>.
+                Enjoy a distraction-free reading experience, save your favorite stories, and stay up-to-date with the latest tech news.
+            </p>
+        </section>
+
+        <section class="contact-info">
+            <h2>Contact Us</h2>
+            <p><strong>Developer:</strong> Sreejith B Naick</p>
+            <p><strong>Email:</strong> <a href="mailto:sbnaick@proton.me">sbnaick@proton.me</a></p>
+            <p><strong>Support:</strong> If you have any questions, feedback, or concerns, please contact us via email.</p>
+            <p><strong>Privacy Policy:</strong> <a href="privacy.html">View Privacy Policy</a></p>
+        </section>
+
+        <div class="playstore">
+            <p>Get the app on</p>
+            <a href="https://play.google.com/store/apps/details?id=com.sreejithbnaick.hackernews" target="_blank" rel="noopener">
+                <img src="https://upload.wikimedia.org/wikipedia/commons/7/78/Google_Play_Store_badge_EN.svg" alt="Get it on Google Play">
+            </a>
+        </div>
+    </main>
+</body>
+</html>
