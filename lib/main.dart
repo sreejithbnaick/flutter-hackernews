@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:hacker_news/bookmark_service.dart';
 import 'package:hacker_news/bookmarks.dart';
+import 'package:hacker_news/info.dart';
 import 'package:http/http.dart' as http;
 import 'package:logger/logger.dart';
 import 'package:qr_flutter/qr_flutter.dart';
@@ -219,6 +220,14 @@ class _MyHomePageState extends State<MyHomePage> {
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => BookmarksScreen()));
+              },
+            ),
+            IconButton(
+              icon: Icon(Icons.info),
+              tooltip: "About",
+              onPressed: () {
+                Navigator.push(context,
+                    MaterialPageRoute(builder: (context) => InfoScreen()));
               },
             ),
           ],
