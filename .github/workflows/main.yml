@@ -15,7 +15,7 @@ jobs:
         java-version: '17.x'
     - uses: subosito/flutter-action@v1
       with:
-        flutter-version: '3.22.0'
+        flutter-version: '3.83.3'
     - run: flutter pub get
     - run: flutter test
     - run: echo ${{ secrets.KEYSTORE }} > keystore.txt
