@@ -8,6 +8,7 @@ import 'package:hacker_news/bookmark_service.dart';
 import 'package:hacker_news/qr_code_scanner.dart';
 import 'package:hacker_news/webview.dart';
 import 'package:share_plus/share_plus.dart';
+import 'package:cross_file/cross_file.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -58,8 +59,8 @@ class _BookmarksState extends State<Bookmarks> {
     setState(() {
       bookmarks = bookmarkBackup
           .where((element) =>
-      element["title"].toString().toLowerCase().contains(value) ||
-          element["url"].toString().toLowerCase().contains(value))
+              element["title"].toString().toLowerCase().contains(value) ||
+              element["url"].toString().toLowerCase().contains(value))
           .toList();
     });
   }
@@ -76,7 +77,7 @@ class _BookmarksState extends State<Bookmarks> {
       type: FileType.custom,
       allowedExtensions: ['txt'],
     );
-    if (result !=null) {
+    if (result != null) {
       try {
         final platformFile = result.files.single;
         final contents = await File(platformFile.path!).readAsString();
@@ -92,28 +93,29 @@ class _BookmarksState extends State<Bookmarks> {
 
   Future<bool> showImportOptionDialog(BuildContext context) async {
     return await showDialog<bool>(
-      context: context,
-      builder: (BuildContext context) {
-        return AlertDialog(
-          title: Text('Import Options'),
-          content: Text('Choose how you want to import the data'),
-          actions: <Widget>[
-            TextButton(
-              child: Text('Replace'),
-              onPressed: () {
-                Navigator.of(context).pop(true); // Return true for replace
-              },
-            ),
-            TextButton(
-              child: Text('Append'),
-              onPressed: () {
-                Navigator.of(context).pop(false); // Return false for append
-              },
-            ),
-          ],
-        );
-      },
-    ) ?? false; // Return false if dialog is dismissed without choosing an option
+          context: context,
+          builder: (BuildContext context) {
+            return AlertDialog(
+              title: Text('Import Options'),
+              content: Text('Choose how you want to import the data'),
+              actions: <Widget>[
+                TextButton(
+                  child: Text('Replace'),
+                  onPressed: () {
+                    Navigator.of(context).pop(true); // Return true for replace
+                  },
+                ),
+                TextButton(
+                  child: Text('Append'),
+                  onPressed: () {
+                    Navigator.of(context).pop(false); // Return false for append
+                  },
+                ),
+              ],
+            );
+          },
+        ) ??
+        false; // Return false if dialog is dismissed without choosing an option
   }
 
   importDataToBookmarks(List<dynamic> data) async {
@@ -148,21 +150,26 @@ class _BookmarksState extends State<Bookmarks> {
 
   Future<void> exportFileAndShare(String data) async {
     try {
-    // Get the application documents directory (private)
-    final directory = await getApplicationDocumentsDirectory();
+      // Get the application documents directory (private)
+      final directory = await getApplicationDocumentsDirectory();
 
-    // Generate a unique filename with timestamp
-    final filename = 'hnb_${DateTime.now().millisecondsSinceEpoch}.txt';
-    final filePath = '${directory.path}/$filename';
-    logger.d("Exporting file as ${filePath}");
+      // Generate a unique filename with timestamp
+      final filename = 'hnb_${DateTime.now().millisecondsSinceEpoch}.txt';
+      final filePath = '${directory.path}/$filename';
+      logger.d("Exporting file as ${filePath}");
 
-    // Write data to the file
+      // Write data to the file
 
       final file = File(filePath);
       await file.writeAsString(data);
 
       // Share the created file
-      await Share.shareXFiles([XFile(filePath)], text: 'Exported file');
+      final params = ShareParams(
+        text: 'Exported file',
+        files: [XFile(filePath)],
+      );
+
+      await SharePlus.instance.share(params);
     } catch (error) {
       // Handle errors gracefully, e.g., show a snackbar to the user
       print('Error creating and sharing file: $error');
@@ -213,14 +220,15 @@ class _BookmarksState extends State<Bookmarks> {
             },
           ),
           IconButton(
-            tooltip: "Scan QR code",
-            icon: Icon(Icons.qr_code, color: Colors.white),
-            onPressed: () {
-              Navigator.push(context,
-                  MaterialPageRoute(builder: (context) => QRScannerScreen()))
-                  .then((value) => loadData());
-            }
-          ),
+              tooltip: "Scan QR code",
+              icon: Icon(Icons.qr_code, color: Colors.white),
+              onPressed: () {
+                Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => QRScannerScreen()))
+                    .then((value) => loadData());
+              }),
           IconButton(
             tooltip: "Import bookmarks",
             icon: Icon(Icons.upload, color: Colors.white),
@@ -308,9 +316,7 @@ class _BookmarksState extends State<Bookmarks> {
       child: ListTile(
         title: Text("$title",
             textDirection: TextDirection.ltr,
-            style: TextStyle(
-                fontSize: 16,
-                fontWeight: FontWeight.bold)),
+            style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
         subtitle: Text("$url"),
         onTap: () => onTapped(post),
       ),
@@ -366,10 +372,10 @@ class _BookmarksState extends State<Bookmarks> {
       return;
     }
     Navigator.push(
-        context,
-        MaterialPageRoute(
-            builder: (context) => WebViewScreen(post["title"], url, post)))
-    .then((value) => loadData());
+            context,
+            MaterialPageRoute(
+                builder: (context) => WebViewScreen(post["title"], url, post)))
+        .then((value) => loadData());
   }
 
   isPdfPost(url) {
@@ -379,20 +385,19 @@ class _BookmarksState extends State<Bookmarks> {
   void _generateQrCode(link) {
     showDialog(
       context: context,
-      builder: (context) =>
-          AlertDialog(
-            title: Text(textAlign: TextAlign.center,"Scan to open link"),
-            backgroundColor: Colors.white,
-            content: Container(
-              width: 300.0,
-              height: 300.0,
-              child: QrImageView(
-                data: link,
-                version: QrVersions.auto,
-                size: 200.0,
-              ),
-            ),
+      builder: (context) => AlertDialog(
+        title: Text(textAlign: TextAlign.center, "Scan to open link"),
+        backgroundColor: Colors.white,
+        content: Container(
+          width: 300.0,
+          height: 300.0,
+          child: QrImageView(
+            data: link,
+            version: QrVersions.auto,
+            size: 200.0,
           ),
+        ),
+      ),
     );
   }
 }
