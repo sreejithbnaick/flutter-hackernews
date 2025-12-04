@@ -46,7 +46,7 @@ android {
 
     defaultConfig {
         applicationId "in.codesmell.hacker_news"
-        minSdkVersion 21
+        minSdkVersion flutter.minSdkVersion
         targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
