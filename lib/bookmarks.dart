@@ -8,7 +8,6 @@ import 'package:hacker_news/bookmark_service.dart';
 import 'package:hacker_news/qr_code_scanner.dart';
 import 'package:hacker_news/webview.dart';
 import 'package:share_plus/share_plus.dart';
-import 'package:cross_file/cross_file.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:qr_flutter/qr_flutter.dart';
 import 'package:path_provider/path_provider.dart';
@@ -328,7 +327,7 @@ class _BookmarksState extends State<Bookmarks> {
     if (value == "open") {
       _launchURL(post["url"]);
     } else if (value == "share") {
-      Share.share(post["url"]);
+      SharePlus.instance.share(ShareParams(text: post["url"]));
     } else if (value == "remove") {
       _removeBookmark(post);
     } else if (value == "qr") {

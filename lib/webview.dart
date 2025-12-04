@@ -137,7 +137,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
   }
 
   _share(url) async {
-    Share.share(url);
+    SharePlus.instance.share(ShareParams(text: url));
   }
 
   _bookmark(post) async {

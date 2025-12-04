@@ -30,11 +30,11 @@ final lightTheme = ThemeData.light().copyWith(
       selectionHandleColor: Colors.black,
     ),
     searchBarTheme: SearchBarThemeData(
-      shadowColor: MaterialStateProperty.all(Colors.transparent),
-      backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
-      surfaceTintColor: MaterialStateProperty.all(Colors.deepOrange),
-      textStyle: MaterialStateProperty.all(TextStyle(color: Colors.white)),
-      shape: MaterialStateProperty.all(
+      shadowColor: WidgetStateProperty.all(Colors.transparent),
+      backgroundColor: WidgetStateProperty.all(Colors.deepOrange),
+      surfaceTintColor: WidgetStateProperty.all(Colors.deepOrange),
+      textStyle: WidgetStateProperty.all(TextStyle(color: Colors.white)),
+      shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.zero))),
     ),
     appBarTheme: AppBarTheme(
@@ -53,11 +53,11 @@ final darkTheme = ThemeData.dark().copyWith(
       selectionHandleColor: Colors.white,
     ),
     searchBarTheme: SearchBarThemeData(
-      shadowColor: MaterialStateProperty.all(Colors.transparent),
-      backgroundColor: MaterialStateProperty.all(Colors.deepOrange),
-      surfaceTintColor: MaterialStateProperty.all(Colors.deepOrange),
-      textStyle: MaterialStateProperty.all(TextStyle(color: Colors.white)),
-      shape: MaterialStateProperty.all(
+      shadowColor: WidgetStateProperty.all(Colors.transparent),
+      backgroundColor: WidgetStateProperty.all(Colors.deepOrange),
+      surfaceTintColor: WidgetStateProperty.all(Colors.deepOrange),
+      textStyle: WidgetStateProperty.all(TextStyle(color: Colors.white)),
+      shape: WidgetStateProperty.all(
           RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.zero))),
     ),
     appBarTheme: AppBarTheme(
@@ -339,7 +339,7 @@ class _MyHomePageState extends State<MyHomePage> {
     } else if (value == "openHn") {
       navigateToUrl(post, "https://news.ycombinator.com/item?id=${post["id"]}");
     } else if (value == "share") {
-      Share.share(post["url"]);
+      SharePlus.instance.share(ShareParams(text: post["url"]));
     } else if (value == "bookmark") {
       _bookmark(post);
     } else if (value == "qr") {
@@ -401,14 +401,22 @@ class _MyHomePageState extends State<MyHomePage> {
 
   loadData() async {
     logger.d("Loading stories");
-    http.Response response =
-        await http.get(Uri.parse(currentURL)).catchError((error) {
-      print(error);
-      return null;
-    });
-    setState(() {
-      widgets = json.decode(response.body).take(100).toList();
-    });
+    try {
+      final response = await http.get(Uri.parse(currentURL));
+      if (response.statusCode == 200) {
+        setState(() {
+          widgets = json.decode(response.body).take(100).toList();
+        });
+      } else {
+        setState(() {
+          widgets = [];
+        });
+        logger.e("Error loading stories: ${response.statusCode}");
+      }
+    } catch (e) {
+      logger.e("Error loading stories: $e");
+      print(e);
+    }
     loadPosts();
   }
 
@@ -432,16 +440,25 @@ class _MyHomePageState extends State<MyHomePage> {
     String dataURL =
         "https://hacker-news.firebaseio.com/v0/item/$item.json?print=pretty";
     logger.d("Loading post: $dataURL");
-    http.Response response =
-        await http.get(Uri.parse(dataURL)).catchError((error) {
-      print(error);
-      return null;
-    });
-    setState(() {
-      post[item] = json.decode(response.body);
-    });
-    loadingState[item] = false;
-    logger.d("Post loaded for $item: ${post[item]}");
+    try {
+      final response = await http.get(Uri.parse(dataURL));
+      if (response.statusCode == 200) {
+        setState(() {
+          post[item] = json.decode(response.body);
+        });
+      } else {
+        setState(() {
+          post[item] = null;
+        });
+        logger.e("Error loading post $item: ${response.statusCode}");
+      }
+    } catch (e) {
+      logger.e("Error loading post $item: $e");
+      print(e);
+    } finally {
+      loadingState[item] = false;
+      logger.d("Post loaded for $item: ${post[item]}");
+    }
   }
 
   void _generateQrCode(link) {
