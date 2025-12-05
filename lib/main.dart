@@ -186,27 +186,30 @@ class _MyHomePageState extends State<MyHomePage> {
               },
             ),
             // Top stories
-            IconButton(
-              icon: Icon(Icons.vertical_align_top_sharp),
-              tooltip: "Top stories",
+            ToolTipIconTextBtn(
+              "Top stories",
+              Icons.vertical_align_top_sharp,
+              "TOP",
               onPressed: () async {
                 currentURL = topStories;
                 loadData();
               },
             ),
             // Best stories
-            IconButton(
-              icon: Icon(Icons.star),
-              tooltip: "Best stories",
+            ToolTipIconTextBtn(
+              "Best stories",
+              Icons.star,
+              "BEST",
               onPressed: () async {
                 currentURL = bestStories;
                 loadData();
               },
             ),
             // New stories
-            IconButton(
-              icon: Icon(Icons.new_releases),
-              tooltip: "New stories",
+            ToolTipIconTextBtn(
+              "New stories",
+              Icons.new_releases,
+              "NEW",
               onPressed: () async {
                 currentURL = newStories;
                 loadData();
@@ -228,6 +231,26 @@ class _MyHomePageState extends State<MyHomePage> {
             itemBuilder: (BuildContext context, int position) {
               return getRow(context, position);
             }));
+  }
+
+  Widget ToolTipIconTextBtn(String message, IconData iconData, String text,
+      {VoidCallback? onPressed}) {
+    return Tooltip(
+        message: message,
+        child: TextButton(
+          style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              minimumSize: Size.square(64),
+              maximumSize: Size.square(64)),
+          child: Column(
+            children: [
+              Spacer(),
+              Icon(iconData),
+              Text(text, style: TextStyle(fontSize: 12)),
+            ],
+          ),
+          onPressed: onPressed,
+        ));
   }
 
   Widget getRow(BuildContext context, int i) {
