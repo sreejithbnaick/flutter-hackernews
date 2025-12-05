@@ -18,12 +18,12 @@ jobs:
       with:
         flutter-version: '3.19.0'
     - run: flutter --version
-    - name: 'Checkout Flutter 3.83.3'
+    - name: 'Checkout Flutter 3.88.3'
       shell: bash
       run: |
         cd $FLUTTER_ROOT;
         git fetch --tags;
-        git checkout 3.83.3;
+        git checkout 3.88.3;
         flutter --version;
     - run: flutter pub get
     - run: flutter test
