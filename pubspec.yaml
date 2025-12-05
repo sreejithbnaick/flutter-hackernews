@@ -14,7 +14,7 @@ description: Hackernews Flutter Application
 version: 2.2.9
 
 environment:
-  sdk: ">=3.4.0 <4.0.0"
+  sdk: ">=3.0.0 <4.0.0"
   flutter: ">=3.19.0"
 
 dependencies:

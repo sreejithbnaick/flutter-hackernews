@@ -13,10 +13,18 @@ jobs:
     - uses: actions/setup-java@v1
       with:
         java-version: '17.x'
-    - uses: subosito/flutter-action@v2
+    - name: 'Set Flutter 3.19.0'
+      uses: subosito/flutter-action@v2
       with:
         flutter-version: '3.19.0'
     - run: flutter --version
+    - name: 'Checkout Flutter 3.83.3'
+      shell: bash
+      run: |
+        cd $FLUTTER_ROOT;
+        git fetch --tags;
+        git checkout 3.83.3;
+        flutter --version;
     - run: flutter pub get
     - run: flutter test
     - run: echo ${{ secrets.KEYSTORE }} > keystore.txt
