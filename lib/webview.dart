@@ -303,6 +303,7 @@ class _WebViewContainerState extends State<WebViewContainer> {
                   },
                   label: Text('Forward'),
                   icon: Icon(Icons.arrow_forward),
+                  iconAlignment: IconAlignment.end,
                 ),
               ],
             ),
